@@ -1,0 +1,454 @@
+[
+  {
+    "schemaVersion": 1,
+    "id": "q-lf6-sla-zeiten",
+    "prompt": "Ein SLA unterscheidet Reaktionszeit und Wiederherstellungszeit. Was beschreibt die Reaktionszeit?",
+    "lernfelder": [6],
+    "examPart": "ap2",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Die Zeit, bis der Fehler vollständig behoben ist",
+        "Die Zeit, bis sich erstmals jemand mit dem gemeldeten Problem befasst",
+        "Die Zeit zwischen zwei Ausfällen desselben Systems",
+        "Die vertraglich zugesicherte jährliche Verfügbarkeit"
+      ],
+      "correct": 1
+    },
+    "explanation": "Die Reaktionszeit misst nur, wie schnell eine Meldung angenommen und bearbeitet wird — nicht, wann das Problem gelöst ist. Das ist die Wiederherstellungszeit (Resolution Time), die im SLA meist deutlich länger bemessen ist als die Reaktionszeit.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf6-fehlerdiagnose",
+    "prompt": "Welches Vorgehen beschreibt die systematische Fehlerdiagnose per Ausschlussverfahren am besten?",
+    "lernfelder": [6],
+    "examPart": "both",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Sofort die wahrscheinlichste Komponente austauschen",
+        "Schritt für Schritt mögliche Ursachen eingrenzen, indem einzelne Faktoren isoliert getestet werden",
+        "Den Kunden bitten, das Problem selbst zu beschreiben und danach zu entscheiden",
+        "Das gesamte System neu aufsetzen"
+      ],
+      "correct": 1
+    },
+    "explanation": "Beim Ausschlussverfahren wird die Fehlerursache eingegrenzt, indem Schicht für Schicht oder Komponente für Komponente isoliert getestet wird (z. B. erst Kabel, dann Netzwerkkarte, dann Treiber, dann Anwendung) — nicht durch Raten oder sofortiges Austauschen, was Zeit und Ersatzteile verschwendet, ohne die Ursache zu kennen.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf6-eskalation",
+    "prompt": "Wozu dient eine Eskalationsstufe im Ticketsystem des Supports?",
+    "lernfelder": [6],
+    "examPart": "ap2",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Um die Priorität eines Tickets zu dokumentieren, ohne etwas zu verändern",
+        "Um ein Ticket an eine höhere Kompetenz- oder Verantwortungsebene weiterzuleiten, wenn es nicht rechtzeitig gelöst wird",
+        "Um Tickets automatisch nach 30 Tagen zu schließen",
+        "Um doppelte Tickets zusammenzuführen"
+      ],
+      "correct": 1
+    },
+    "explanation": "Eskalation bedeutet, ein Ticket weiterzugeben — an den nächsten Support-Level (First-/Second-/Third-Level) oder an einen Vorgesetzten —, wenn die vereinbarte Bearbeitungszeit droht überschritten zu werden oder die eigene Kompetenz nicht ausreicht.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf7-stromkosten",
+    "prompt": "Ein Server hat eine Leistungsaufnahme von 500 Watt und läuft durchgehend das ganze Jahr (365 Tage). Der Strompreis beträgt 0,30 €/kWh. Wie hoch sind die jährlichen Stromkosten in Euro?",
+    "lernfelder": [7],
+    "examPart": "ap1",
+    "difficulty": "intermediate",
+    "answer": { "kind": "calculation", "expected": "1314", "unit": "€" },
+    "explanation": "500 W × 24 h × 365 Tage = 4.380.000 Wh = 4.380 kWh. 4.380 kWh × 0,30 €/kWh = 1.314 €. Solche Berechnungen sind Grundlage jeder Wirtschaftlichkeitsbetrachtung bei der Hardwarebeschaffung — ein sparsameres Netzteil rechnet sich oft schon nach wenigen Jahren.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf7-cps-aufbau",
+    "prompt": "Aus welchen drei Grundkomponenten besteht ein typisches cyber-physisches System?",
+    "lernfelder": [7],
+    "examPart": "ap2",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Sensor, Steuerung, Aktor",
+        "Prozessor, Arbeitsspeicher, Festplatte",
+        "Client, Server, Datenbank",
+        "Router, Switch, Firewall"
+      ],
+      "correct": 0
+    },
+    "explanation": "Ein Sensor erfasst einen physikalischen Zustand (z. B. Temperatur), die Steuerung (oft ein eingebetteter Rechner) wertet die Daten aus und trifft eine Entscheidung, der Aktor setzt diese Entscheidung in eine physische Aktion um (z. B. einen Lüfter einschalten). Diese Sensor-Steuerung-Aktor-Kette ist das Grundmuster jedes cyber-physischen Systems.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf12-lastenheft-pflichtenheft",
+    "prompt": "Wer erstellt üblicherweise das Lastenheft und wer das Pflichtenheft?",
+    "lernfelder": [12],
+    "examPart": "ap2",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Beide werden ausschließlich vom Auftragnehmer erstellt",
+        "Das Lastenheft erstellt der Auftraggeber (WAS wird gebraucht), das Pflichtenheft der Auftragnehmer (WIE wird es umgesetzt)",
+        "Das Pflichtenheft erstellt der Auftraggeber, das Lastenheft der Auftragnehmer",
+        "Beide werden gemeinsam von einer externen Prüfstelle erstellt"
+      ],
+      "correct": 1
+    },
+    "explanation": "Das Lastenheft beschreibt aus Kundensicht die Anforderungen (WAS wird gebraucht, welches Problem soll gelöst werden). Das Pflichtenheft ist die Antwort des Auftragnehmers darauf: WIE die Anforderungen technisch umgesetzt werden. Verwechslungen der beiden sind ein klassischer Prüfungsfehler.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf12-kritischer-pfad",
+    "prompt": "Was kennzeichnet den kritischen Pfad in der Netzplantechnik?",
+    "lernfelder": [12],
+    "examPart": "ap2",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Die Abfolge von Vorgängen mit dem geringsten Risiko",
+        "Die Abfolge von Vorgängen ohne jeglichen zeitlichen Puffer — jede Verzögerung dort verzögert das Gesamtprojekt",
+        "Die teuersten Vorgänge im Projekt",
+        "Die Vorgänge, die parallel zueinander laufen können"
+      ],
+      "correct": 1
+    },
+    "explanation": "Der kritische Pfad ist die längste Kette voneinander abhängiger Vorgänge durch den Netzplan. Vorgänge darauf haben einen Puffer (Slack) von null: verzögert sich einer davon, verzögert sich zwangsläufig der gesamte Projektendtermin. Vorgänge außerhalb des kritischen Pfads besitzen dagegen zeitlichen Spielraum.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf12-gantt-zweck",
+    "prompt": "Wozu dient ein Gantt-Diagramm in der Projektplanung?",
+    "lernfelder": [12],
+    "examPart": "both",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Es zeigt die Kostenverteilung über die Projektlaufzeit als Kreisdiagramm",
+        "Es stellt Vorgänge als Balken auf einer Zeitachse dar und macht Dauer sowie Überlappungen sichtbar",
+        "Es beschreibt ausschließlich die Aufbauorganisation eines Projektteams",
+        "Es ersetzt die Risikoanalyse eines Projekts"
+      ],
+      "correct": 1
+    },
+    "explanation": "Ein Gantt-Diagramm visualisiert Projektvorgänge als horizontale Balken auf einer Zeitachse — Start, Dauer, Ende und Überlappungen sind auf einen Blick erkennbar. Anders als der Netzplan zeigt es aber Abhängigkeiten zwischen Vorgängen nur eingeschränkt.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf2-skonto",
+    "prompt": "Eine Rechnung über 2000 € gewährt 2 % Skonto bei Zahlung innerhalb von 10 Tagen. Wie viel Euro zahlt der Kunde bei fristgerechter Zahlung?",
+    "lernfelder": [2],
+    "examPart": "ap1",
+    "difficulty": "beginner",
+    "answer": { "kind": "calculation", "expected": "1960", "unit": "€" },
+    "explanation": "Skonto ist ein Preisnachlass für schnelle Zahlung: 2 % von 2000 € sind 40 €, also 2000 € − 40 € = 1960 €. Skonto ist von Rabatt zu unterscheiden — Rabatt wird sofort auf der Rechnung abgezogen, Skonto nur bei Zahlung innerhalb der genannten Frist.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf2-leasing-vorteil",
+    "prompt": "Welcher Vorteil spricht typischerweise für Leasing gegenüber dem Kauf von IT-Hardware?",
+    "lernfelder": [2],
+    "examPart": "ap1",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Die Hardware gehört nach der ersten Zahlung sofort dem Unternehmen",
+        "Es fällt keine laufende Zahlung an",
+        "Die Liquidität wird geschont, da keine hohe Einmalzahlung nötig ist, und Geräte lassen sich regelmäßig aktualisieren",
+        "Leasing ist in jedem Fall günstiger als ein Kauf"
+      ],
+      "correct": 2
+    },
+    "explanation": "Leasing verteilt Kosten auf regelmäßige Raten statt einer hohen Anfangsinvestition — das schont die Liquidität und erleichtert es, Geräte am Laufzeitende gegen aktuelle Modelle zu tauschen. Ob Leasing günstiger ist als Kauf, hängt vom Einzelfall ab (Zinssatz, Nutzungsdauer, Restwert) und lässt sich nicht pauschal sagen.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf2-afa",
+    "prompt": "Ein Server kostet in der Anschaffung 6000 € und wird linear über 3 Jahre abgeschrieben. Wie hoch ist die jährliche Abschreibung (AfA) in Euro?",
+    "lernfelder": [2],
+    "examPart": "ap1",
+    "difficulty": "beginner",
+    "answer": { "kind": "calculation", "expected": "2000", "unit": "€" },
+    "explanation": "Bei linearer Abschreibung wird der Anschaffungswert gleichmäßig auf die Nutzungsdauer verteilt: 6000 € ÷ 3 Jahre = 2000 € pro Jahr. Am Ende der Nutzungsdauer ist der Buchwert des Geräts null (bzw. der angesetzte Restwert).",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf5-left-join",
+    "prompt": "Was liefert ein LEFT JOIN zusätzlich im Vergleich zu einem INNER JOIN derselben zwei Tabellen?",
+    "lernfelder": [5, 8],
+    "examPart": "ap2",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Zusätzlich alle Datensätze der linken Tabelle ohne passenden Partner in der rechten — mit NULL in den rechten Spalten",
+        "Zusätzlich alle Datensätze der rechten Tabelle ohne passenden Partner",
+        "Gar nichts zusätzlich — LEFT JOIN und INNER JOIN liefern immer dasselbe Ergebnis",
+        "Alle möglichen Kombinationen beider Tabellen"
+      ],
+      "correct": 0
+    },
+    "explanation": "LEFT JOIN behält alle Datensätze der linken (zuerst genannten) Tabelle, auch wenn es in der rechten Tabelle keinen passenden Partner gibt — die entsprechenden Spalten werden dann mit NULL aufgefüllt. Der INNER JOIN würde diese Datensätze komplett weglassen.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf5-erste-normalform",
+    "prompt": "Was fordert die 1. Normalform (1NF) einer relationalen Tabelle?",
+    "lernfelder": [5],
+    "examPart": "ap2",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Jedes Attribut muss atomar sein — keine Mehrfachwerte oder Listen in einer Zelle",
+        "Es darf keine transitiven Abhängigkeiten geben",
+        "Jede Tabelle braucht mindestens zwei Fremdschlüssel",
+        "Alle Spalten müssen vom Typ VARCHAR sein"
+      ],
+      "correct": 0
+    },
+    "explanation": "Die 1NF verlangt atomare (unteilbare) Werte je Zelle — eine Spalte 'Telefonnummern' mit mehreren, kommagetrennten Nummern verstößt dagegen und müsste in eine eigene Tabelle ausgelagert werden. Erst darauf bauen 2NF (volle funktionale Abhängigkeit vom Gesamtschlüssel) und 3NF (keine transitiven Abhängigkeiten) auf.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf9-routing-arten",
+    "prompt": "Worin unterscheidet sich statisches von dynamischem Routing grundsätzlich?",
+    "lernfelder": [9],
+    "examPart": "ap2",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Statische Routen werden von Hand eingetragen und ändern sich nicht von selbst, dynamische Routen lernt der Router automatisch über ein Routingprotokoll",
+        "Dynamisches Routing funktioniert nur in IPv6-Netzen",
+        "Statisches Routing ist immer schneller als dynamisches Routing",
+        "Beide Begriffe bezeichnen dasselbe Verfahren"
+      ],
+      "correct": 0
+    },
+    "explanation": "Statische Routen trägt ein Administrator manuell ein — einfach und vorhersehbar, aber unflexibel bei Netzwerkänderungen. Dynamisches Routing (z. B. über OSPF oder RIP) tauscht Informationen automatisch zwischen Routern aus und passt sich bei Ausfällen oder Topologieänderungen selbstständig an.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf9-dmz",
+    "prompt": "Welchen Zweck erfüllt eine DMZ (demilitarisierte Zone) im Netzwerkdesign?",
+    "lernfelder": [9, 11],
+    "examPart": "both",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Sie beschleunigt den Datenverkehr zwischen internen Abteilungen",
+        "Sie isoliert von außen erreichbare Dienste (z. B. Webserver) in einem eigenen Netzsegment, getrennt vom internen LAN",
+        "Sie ersetzt die Notwendigkeit einer Firewall",
+        "Sie verschlüsselt automatisch den gesamten internen Datenverkehr"
+      ],
+      "correct": 1
+    },
+    "explanation": "Eine DMZ ist ein eigenes Netzsegment zwischen Internet und internem LAN, meist über zwei Firewalls abgegrenzt. Dienste, die von außen erreichbar sein müssen (Webserver, Mailserver), stehen dort — wird ein solcher Dienst kompromittiert, hat der Angreifer noch keinen direkten Zugriff auf das interne Netz.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf11-asymmetrisch-einsatz",
+    "prompt": "Wofür wird die asymmetrische Verschlüsselung beim TLS-Verbindungsaufbau hauptsächlich eingesetzt?",
+    "lernfelder": [11],
+    "examPart": "both",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Für die Verschlüsselung der gesamten Nutzdaten während der ganzen Verbindung",
+        "Für den sicheren Austausch bzw. die Aushandlung eines symmetrischen Sitzungsschlüssels",
+        "Ausschließlich zur Komprimierung der Daten",
+        "Für die Fehlerkorrektur bei Übertragungsstörungen"
+      ],
+      "correct": 1
+    },
+    "explanation": "Asymmetrische Verfahren sind rechenintensiv, deshalb übernehmen sie bei TLS nur den sicheren Schlüsselaustausch bzw. die Authentifizierung. Die eigentlichen Nutzdaten werden anschließend mit einem schnellen symmetrischen Verfahren (z. B. AES) verschlüsselt — dieses Hybridverfahren verbindet Sicherheit mit Geschwindigkeit.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf11-hash-zweck",
+    "prompt": "Wofür wird ein kryptografisches Hashverfahren typischerweise eingesetzt?",
+    "lernfelder": [11],
+    "examPart": "both",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Um Daten reversibel zu verschlüsseln und später wieder zu entschlüsseln",
+        "Um die Integrität von Daten zu prüfen und Passwörter sicher zu speichern, ohne sie im Klartext abzulegen",
+        "Um Daten verlustfrei zu komprimieren",
+        "Um IP-Adressen in Domainnamen umzuwandeln"
+      ],
+      "correct": 1
+    },
+    "explanation": "Ein Hashverfahren erzeugt aus beliebigen Eingabedaten einen Wert fester Länge, aus dem sich die Eingabe praktisch nicht zurückrechnen lässt (Einwegfunktion). Damit lässt sich prüfen, ob Daten unverändert sind (Prüfsumme/Integrität), und Passwörter lassen sich als Hash statt im Klartext speichern.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf11-pki-ca",
+    "prompt": "Welche Rolle übernimmt eine Certificate Authority (CA) innerhalb einer Public-Key-Infrastruktur (PKI)?",
+    "lernfelder": [11],
+    "examPart": "both",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Sie verschlüsselt sämtlichen Datenverkehr eines Unternehmens zentral",
+        "Sie stellt digitale Zertifikate aus und bestätigt damit vertrauenswürdig die Zuordnung von öffentlichem Schlüssel zu Identität",
+        "Sie speichert alle privaten Schlüssel der Nutzer zentral",
+        "Sie ist ausschließlich für die DNS-Auflösung verantwortlich"
+      ],
+      "correct": 1
+    },
+    "explanation": "Die CA ist die vertrauenswürdige Stelle einer PKI, die nach Prüfung der Identität ein Zertifikat signiert und damit bestätigt: dieser öffentliche Schlüssel gehört zu dieser Domain/Person. Private Schlüssel verbleiben immer beim Zertifikatsinhaber und werden nie an die CA übertragen.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf3-subnetting-mindestpraefix",
+    "prompt": "Ein Netz muss mindestens 100 nutzbare Hostadressen bieten. Welches CIDR-Präfix (Schreibweise /XX) ist das größte (also kleinstmögliche Netz), das dafür noch ausreicht?",
+    "lernfelder": [3, 9],
+    "examPart": "ap1",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "shortAnswer",
+      "accepted": ["/25", "25"]
+    },
+    "explanation": "/25 lässt 7 Hostbits, also 2^7 − 2 = 126 nutzbare Adressen — ausreichend für 100 Hosts. /26 hätte nur 2^6 − 2 = 62 nutzbare Adressen und reicht nicht. /25 ist damit das kleinste Netz, das die Anforderung noch erfüllt.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf1-bpmn-abkuerzung",
+    "prompt": "Wofür steht die Abkürzung BPMN, mit der Geschäftsprozesse grafisch modelliert werden?",
+    "lernfelder": [1],
+    "examPart": "ap1",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "shortAnswer",
+      "accepted": ["Business Process Model and Notation", "Business Process Modeling Notation"]
+    },
+    "explanation": "BPMN (Business Process Model and Notation) ist ein grafischer Standard zur Darstellung von Geschäftsprozessen mit einheitlichen Symbolen für Aktivitäten, Ereignisse und Entscheidungen (Gateways) — seit der Neuordnung der IT-Berufe fester Bestandteil von AP1.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf1-ki-vs-regelbasiert",
+    "prompt": "Was unterscheidet maschinelles Lernen grundsätzlich von klassischer, regelbasierter Programmierung?",
+    "lernfelder": [1],
+    "examPart": "ap1",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Bei regelbasierter Programmierung gibt ein Mensch feste Regeln vor, beim maschinellen Lernen lernt das System die Regeln selbst aus Trainingsdaten",
+        "Maschinelles Lernen benötigt grundsätzlich keine Daten",
+        "Beide Ansätze sind technisch identisch, nur die Begriffe unterscheiden sich",
+        "Regelbasierte Programmierung ist eine Unterart des maschinellen Lernens"
+      ],
+      "correct": 0
+    },
+    "explanation": "Bei regelbasierter Programmierung schreibt ein Mensch feste Regeln, nach denen das Programm aus Eingaben Ausgaben berechnet. Beim maschinellen Lernen lernt das System die Regeln selbst aus Trainingsdaten heraus, statt dass sie explizit vorgegeben werden — die Qualität der Ergebnisse hängt entsprechend stark von der Qualität und Menge der Trainingsdaten ab.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf10-raid1-ausfallsicherheit",
+    "prompt": "Ein RAID 1 besteht aus genau 2 Festplatten. Wie viele Festplatten dürfen gleichzeitig ausfallen, ohne dass Daten verloren gehen?",
+    "lernfelder": [10],
+    "examPart": "ap2",
+    "difficulty": "beginner",
+    "answer": { "kind": "calculation", "expected": "1" },
+    "explanation": "RAID 1 spiegelt die Daten vollständig auf eine zweite Platte. Solange mindestens eine der beiden Platten intakt ist, bleiben alle Daten verfügbar — es darf also maximal eine der zwei Platten gleichzeitig ausfallen.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf10-backup-inkrementell",
+    "prompt": "Was ist der wesentliche Nachteil einer rein inkrementellen Backup-Strategie gegenüber einer differenziellen?",
+    "lernfelder": [10, 11],
+    "examPart": "ap2",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Inkrementelle Backups benötigen deutlich mehr Speicherplatz als differenzielle",
+        "Zur vollständigen Wiederherstellung werden die Vollsicherung UND alle inkrementellen Sicherungen in der richtigen Reihenfolge benötigt — fehlt eine, ist die Kette unterbrochen",
+        "Inkrementelle Backups sind grundsätzlich langsamer zu erstellen als eine Vollsicherung",
+        "Inkrementelle Backups können nur einmal im Jahr erstellt werden"
+      ],
+      "correct": 1
+    },
+    "explanation": "Inkrementelle Sicherungen speichern jeweils nur die Änderungen seit der letzten Sicherung (egal welcher Art) — das spart Zeit und Platz beim Sichern, macht die Wiederherstellung aber empfindlicher: es müssen alle Glieder der Kette vorhanden und intakt sein. Eine differenzielle Sicherung speichert dagegen immer alle Änderungen seit der letzten Vollsicherung — größer, aber robuster bei der Wiederherstellung (nur Vollsicherung + letzte differenzielle Sicherung nötig).",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf8-datenformate",
+    "prompt": "Welche Eigenschaft trifft auf JSON im Vergleich zu CSV als Austauschformat zu?",
+    "lernfelder": [8],
+    "examPart": "ap2",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "JSON kann verschachtelte Strukturen (Objekte in Objekten, Listen) abbilden, CSV im Kern nur flache Tabellen",
+        "CSV ist immer performanter als JSON, unabhängig von der Datenmenge",
+        "JSON kennt keine Datentypen, CSV schon",
+        "Beide Formate sind für maschinelle Verarbeitung ungeeignet"
+      ],
+      "correct": 0
+    },
+    "explanation": "CSV bildet im Kern nur flache, tabellarische Daten ab (Zeilen mit gleicher Spaltenstruktur). JSON kann dagegen verschachtelte Objekte und Arrays abbilden und eignet sich damit besser für komplexere, hierarchische Datenstrukturen — etwa bei REST-APIs.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-lf4-rbac",
+    "prompt": "Was ist das Grundprinzip von RBAC (Role-Based Access Control)?",
+    "lernfelder": [4],
+    "examPart": "both",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Jeder Benutzer bekommt individuell und einzeln zugewiesene Rechte ohne jede Struktur",
+        "Rechte werden Rollen zugewiesen, und Benutzer erhalten Rechte, indem sie einer oder mehreren Rollen zugeordnet werden",
+        "Der Zugriff wird ausschließlich über biometrische Merkmale gesteuert",
+        "Alle Benutzer erhalten grundsätzlich dieselben Rechte"
+      ],
+      "correct": 1
+    },
+    "explanation": "Bei RBAC werden Berechtigungen nicht einzeln pro Benutzer vergeben, sondern an Rollen (z. B. 'Buchhaltung', 'IT-Administration') gebunden. Ein Benutzer erhält seine Rechte, indem er einer oder mehreren Rollen zugeordnet wird — das reduziert Verwaltungsaufwand erheblich und macht Rechtevergabe nachvollziehbar.",
+    "origin": { "kind": "ownWork" }
+  }
+]

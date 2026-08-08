@@ -23,25 +23,80 @@ public struct LessonProgress: Codable, Sendable, Equatable {
     }
 }
 
+/// Spaced-Repetition-Stand zu einer einzelnen Prüfungsfrage (SM-2-Algorithmus).
+public struct QuestionProgress: Codable, Sendable, Equatable {
+    public var repetitions: Int
+    public var easinessFactor: Double
+    public var intervalDays: Int
+    public var dueDate: Date
+    public var correctCount: Int
+    public var incorrectCount: Int
+    public var lastReviewed: Date?
+
+    public init(
+        repetitions: Int = 0,
+        easinessFactor: Double = 2.5,
+        intervalDays: Int = 0,
+        dueDate: Date = .now,
+        correctCount: Int = 0,
+        incorrectCount: Int = 0,
+        lastReviewed: Date? = nil
+    ) {
+        self.repetitions = repetitions
+        self.easinessFactor = easinessFactor
+        self.intervalDays = intervalDays
+        self.dueDate = dueDate
+        self.correctCount = correctCount
+        self.incorrectCount = incorrectCount
+        self.lastReviewed = lastReviewed
+    }
+}
+
 /// Der gesamte persistierte Lernstand.
 ///
 /// `version` erlaubt Migrationen: über eine dreijährige Ausbildung ändert sich
 /// das Format garantiert, und der Fortschritt darf dabei nie verloren gehen.
+/// Ältere Dateien (Version 1) kennen `questions` noch nicht — beim Decodieren
+/// wird das Feld defensiv mit einem leeren Dictionary aufgefüllt statt den
+/// gesamten Lernstand zu verwerfen.
 public struct ProgressState: Codable, Sendable, Equatable {
-    public static let currentVersion = 1
+    public static let currentVersion = 2
 
     public var version: Int
     public var lessons: [String: LessonProgress]
+    public var questions: [String: QuestionProgress]
     public var createdAt: Date
+
+    private enum CodingKeys: String, CodingKey {
+        case version, lessons, questions, createdAt
+    }
 
     public init(
         version: Int = ProgressState.currentVersion,
         lessons: [String: LessonProgress] = [:],
+        questions: [String: QuestionProgress] = [:],
         createdAt: Date = .now
     ) {
         self.version = version
         self.lessons = lessons
+        self.questions = questions
         self.createdAt = createdAt
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        version = try container.decode(Int.self, forKey: .version)
+        lessons = try container.decode([String: LessonProgress].self, forKey: .lessons)
+        questions = try container.decodeIfPresent([String: QuestionProgress].self, forKey: .questions) ?? [:]
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(version, forKey: .version)
+        try container.encode(lessons, forKey: .lessons)
+        try container.encode(questions, forKey: .questions)
+        try container.encode(createdAt, forKey: .createdAt)
     }
 }
 
@@ -84,6 +139,28 @@ public final class ProgressStore: @unchecked Sendable {
             change(&progress)
             progress.lastVisited = .now
             state.lessons[lessonID] = progress
+            return persist()
+        }
+    }
+
+    public func progress(questionID: String) -> QuestionProgress {
+        queue.sync { state.questions[questionID] ?? QuestionProgress() }
+    }
+
+    /// Alle Fragen, deren Fälligkeitsdatum erreicht oder überschritten ist.
+    public func dueQuestionIDs(asOf now: Date = .now) -> Set<String> {
+        queue.sync {
+            Set(state.questions.filter { $0.value.dueDate <= now }.keys)
+        }
+    }
+
+    @discardableResult
+    public func updateQuestion(id: String, _ change: (inout QuestionProgress) -> Void) -> Result<Void, any Error> {
+        queue.sync {
+            var progress = state.questions[id] ?? QuestionProgress()
+            change(&progress)
+            progress.lastReviewed = .now
+            state.questions[id] = progress
             return persist()
         }
     }

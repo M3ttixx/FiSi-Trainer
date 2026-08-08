@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "id": "db-mysql-basics",
+  "title": "MySQL/MariaDB installieren und eine erste Datenbank absichern",
+  "summary": "Von der Installation über die Grundabsicherung bis zu Benutzer, Rechten und Backup — der Standardweg, einen Datenbankserver unter Debian/Ubuntu produktionsreif einzurichten.",
+  "track": "database",
+  "lernfelder": [5, 8],
+  "examPart": "ap2",
+  "difficulty": "beginner",
+  "prerequisites": [],
+  "origin": { "kind": "ownWork" },
+  "steps": [
+    {
+      "teaching": "Unter Debian und Ubuntu wird der Datenbankserver wie jedes andere Paket über apt installiert. MariaDB ist der im Debian-Umfeld übliche, quelloffene Fork von MySQL und liegt in den Standard-Repositories.",
+      "prompt": "Installiere den Datenbankserver mariadb-server.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?apt(-get)? install ((-y|--yes) )?mariadb-server((-core|-10\\.\\d+))?( (-y|--yes))?$",
+        "canonical": "sudo apt install mariadb-server",
+        "nearMisses": [
+          {
+            "pattern": "^apt(-get)? install mariadb-server.*",
+            "feedback": "Das Kommando stimmt, aber ohne Root-Rechte bricht die Installation ab. Stelle sudo voran."
+          },
+          {
+            "pattern": "^(sudo )?apt(-get)? install (mysql-server|mysql-client).*",
+            "feedback": "mysql-server funktioniert grundsätzlich auch, aber unter Debian/Ubuntu ist mariadb-server das Standardpaket in den Repositories. In dieser Lektion ist mariadb-server gefragt."
+          },
+          {
+            "pattern": "^(sudo )?apt(-get)? update$",
+            "feedback": "Sinnvoller Schritt davor, aber hier ist die eigentliche Installation gefragt."
+          }
+        ]
+      },
+      "hints": [
+        "Das Unterkommando von apt zum Installieren heißt install.",
+        "Das Paket heißt mariadb-server."
+      ],
+      "explanation": "apt install mariadb-server zieht den Server samt Abhängigkeiten (u. a. mariadb-client) und startet den Dienst direkt nach der Installation über systemd. Ein frisch installierter Server ist zu diesem Zeitpunkt noch unsicher konfiguriert — deshalb folgt im nächsten Schritt die Absicherung."
+    },
+    {
+      "teaching": "Direkt nach der Installation ist der root-Zugang von MariaDB oft ohne Passwort oder mit einem Standardwert erreichbar, Testdatenbanken und anonyme Benutzer existieren noch. Das mitgelieferte Skript räumt genau das systematisch auf.",
+      "prompt": "Starte das Skript zur Grundabsicherung der frisch installierten Datenbank.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?mysql_secure_installation$",
+        "canonical": "sudo mysql_secure_installation",
+        "nearMisses": [
+          {
+            "pattern": "^(sudo )?mariadb-secure-installation$",
+            "feedback": "Guter Instinkt beim Namen, aber das Skript heißt weiterhin mysql_secure_installation — auch bei MariaDB, aus historischer Kompatibilität."
+          },
+          {
+            "pattern": "^(sudo )?systemctl (start|restart|status) (mariadb|mysql).*",
+            "feedback": "Das steuert nur den Dienst, ändert aber keine Sicherheitseinstellungen. Gesucht ist das Absicherungsskript."
+          }
+        ]
+      },
+      "hints": [
+        "Das Skript ist Teil des mariadb-server-Pakets und läuft interaktiv im Terminal.",
+        "Der Name beginnt mit mysql_ und endet auf _installation."
+      ],
+      "explanation": "mysql_secure_installation setzt ein root-Passwort, entfernt anonyme Benutzer, deaktiviert den entfernten root-Login und löscht die Testdatenbank. Diese vier Punkte sind die Mindestabsicherung, bevor der Server produktiv genutzt wird."
+    },
+    {
+      "teaching": "Anwendungen sollten nie mit dem root-Konto der Datenbank arbeiten. Der erste Schritt zu einer sauberen Trennung ist eine eigene Datenbank pro Anwendung — dafür wird zunächst in die interaktive MySQL-Konsole gewechselt.",
+      "prompt": "Lege in der MySQL-Konsole eine neue Datenbank namens shop an.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^create database (if not exists )?shop;?$",
+        "canonical": "CREATE DATABASE shop;",
+        "nearMisses": [
+          {
+            "pattern": "^create table shop.*",
+            "feedback": "CREATE TABLE legt eine Tabelle innerhalb einer Datenbank an, nicht die Datenbank selbst. Gesucht ist CREATE DATABASE."
+          },
+          {
+            "pattern": "^create database (?!shop\\b).*",
+            "feedback": "Der Befehl stimmt, aber der Datenbankname soll shop lauten."
+          },
+          {
+            "pattern": "^create database shop$",
+            "feedback": "Fast richtig — SQL-Anweisungen werden mit einem Semikolon abgeschlossen."
+          }
+        ]
+      },
+      "hints": [
+        "Die SQL-Anweisung zum Anlegen einer Datenbank beginnt mit CREATE DATABASE.",
+        "SQL-Anweisungen enden mit einem Semikolon."
+      ],
+      "explanation": "CREATE DATABASE shop; legt einen neuen, leeren Namensraum für Tabellen an. Erst danach ergibt ein eigener, eingeschränkter Benutzer für diese Datenbank Sinn — root bleibt für administrative Aufgaben reserviert."
+    },
+    {
+      "teaching": "Ein Benutzer mit Zugriff nur von localhost kann sich ausschließlich vom Datenbankserver selbst aus anmelden — das reduziert die Angriffsfläche, wenn Anwendung und Datenbank auf derselben Maschine laufen.",
+      "prompt": "Lege den Datenbankbenutzer webapp an, der sich nur von localhost aus mit dem Passwort 'GeheimesPasswort123' anmelden darf.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^create user (if not exists )?webapp@localhost identified by [^ ;]+;?$",
+        "canonical": "CREATE USER 'webapp'@'localhost' IDENTIFIED BY 'GeheimesPasswort123';",
+        "nearMisses": [
+          {
+            "pattern": "^create user (if not exists )?webapp@% identified by [^ ;]+;?$",
+            "feedback": "'%' erlaubt die Anmeldung von jedem Host aus — deutlich größere Angriffsfläche als nötig. Gesucht ist die Beschränkung auf localhost."
+          },
+          {
+            "pattern": "^grant .*",
+            "feedback": "GRANT vergibt Rechte an einen bereits existierenden Benutzer. Der Benutzer muss aber zuerst mit CREATE USER angelegt werden."
+          },
+          {
+            "pattern": "^create user (if not exists )?webapp@localhost$",
+            "feedback": "Der Benutzer wird angelegt, aber ohne IDENTIFIED BY '...' bekommt er kein Passwort."
+          }
+        ]
+      },
+      "hints": [
+        "Die Anweisung heißt CREATE USER, gefolgt von 'benutzer'@'host'.",
+        "Das Passwort wird mit IDENTIFIED BY '...' angegeben."
+      ],
+      "explanation": "CREATE USER legt das Konto an, vergibt aber noch keinerlei Rechte. 'webapp'@'localhost' bedeutet: dieser Benutzername ist nur gültig, wenn die Verbindung vom selben Rechner kommt — ein zweiter Eintrag 'webapp'@'%' wäre ein eigenständiges, separates Konto."
+    },
+    {
+      "teaching": "Nach dem Prinzip der minimalen Rechtevergabe bekommt eine Anwendung nur genau die Rechte, die sie für ihre Datenbank braucht — nicht mehr. Globale Rechte oder Zugriff auf fremde Datenbanken sind ein unnötiges Risiko.",
+      "prompt": "Gib dem Benutzer webapp alle Rechte auf die Datenbank shop (und ausschließlich diese).",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^grant all( privileges)? on shop\\.\\* to webapp@localhost;?$",
+        "canonical": "GRANT ALL PRIVILEGES ON shop.* TO 'webapp'@'localhost';",
+        "nearMisses": [
+          {
+            "pattern": "^grant all( privileges)? on \\*\\.\\* to webapp@localhost;?$",
+            "feedback": "*.* vergibt Rechte auf alle Datenbanken des Servers — deutlich zu weitreichend. Gesucht ist die Beschränkung auf shop.*."
+          },
+          {
+            "pattern": "^grant all( privileges)? on shop\\.\\* to webapp@%;?$",
+            "feedback": "Der Host stimmt nicht mit dem angelegten Benutzer 'webapp'@'localhost' überein — die Rechte würden ins Leere laufen bzw. ein neues Konto beschreiben."
+          },
+          {
+            "pattern": "^grant select on shop\\.\\* to webapp@localhost;?$",
+            "feedback": "SELECT allein erlaubt nur Lesezugriff. Für eine Anwendung, die auch schreibt, sind umfassendere Rechte auf ihre eigene Datenbank nötig."
+          }
+        ]
+      },
+      "hints": [
+        "Die Anweisung heißt GRANT ... ON ... TO ...",
+        "shop.* bedeutet: alle Tabellen innerhalb der Datenbank shop."
+      ],
+      "explanation": "GRANT ALL PRIVILEGES ON shop.* TO 'webapp'@'localhost'; beschränkt die Rechte exakt auf die Datenbank shop. Der Benutzer kann keine anderen Datenbanken lesen oder verändern, selbst wenn sie auf demselben Server liegen. Nach GRANT-Änderungen ist zusätzlich FLUSH PRIVILEGES; sinnvoll, wenn Rechte nicht über die offiziellen SQL-Anweisungen, sondern direkt in den Systemtabellen geändert wurden."
+    },
+    {
+      "teaching": "Regelmäßige Backups sind die Lebensversicherung jeder Datenbank. mysqldump exportiert eine Datenbank als reine SQL-Textdatei mit allen CREATE- und INSERT-Anweisungen, die zur Wiederherstellung nötig sind.",
+      "prompt": "Erstelle mit mysqldump ein Backup der Datenbank shop in die Datei shop_backup.sql.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^mysqldump (-u ?[^ ]+ )?(-p ?[^ ]* )?shop( -u ?[^ ]+)?( -p ?[^ ]*)? ?> ?shop_backup\\.sql$",
+        "canonical": "mysqldump -u root -p shop > shop_backup.sql",
+        "nearMisses": [
+          {
+            "pattern": "^mysqldump shop_backup\\.sql.*",
+            "feedback": "Die Ausgabe von mysqldump muss per Umleitung (>) in eine Datei geschrieben werden, nicht als weiteres Argument übergeben."
+          },
+          {
+            "pattern": "^mysqldump (-u ?[^ ]+ )?(-p ?[^ ]* )?--all-databases.*",
+            "feedback": "Das sichert den kompletten Server statt nur der Datenbank shop. Gesucht ist ein gezieltes Backup einer einzelnen Datenbank."
+          },
+          {
+            "pattern": "^cp .*shop.*\\.sql$",
+            "feedback": "Kopieren funktioniert nicht ohne laufendes mysqldump — die Datenbankdateien lassen sich im laufenden Betrieb nicht einfach kopieren. Das dafür vorgesehene Werkzeug heißt mysqldump."
+          }
+        ]
+      },
+      "hints": [
+        "Das Werkzeug heißt mysqldump und gibt SQL auf die Standardausgabe aus.",
+        "Die Ausgabe wird mit dem Umleitungsoperator > in eine Datei geschrieben."
+      ],
+      "explanation": "mysqldump -u root -p shop > shop_backup.sql fragt das root-Passwort ab und schreibt Struktur und Daten der Datenbank shop als SQL-Anweisungen in shop_backup.sql. Die Datei ist reiner Text und lässt sich versionieren, komprimieren oder auf einen anderen Server kopieren."
+    },
+    {
+      "teaching": "Ein Backup ist nur so gut wie seine getestete Wiederherstellung. Der Import läuft nicht über mysqldump, sondern über den mysql-Client, der die SQL-Datei einliest und ausführt.",
+      "prompt": "Spiele das Backup shop_backup.sql in die (bereits existierende, leere) Datenbank shop zurück.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^mysql (-u ?[^ ]+ )?(-p ?[^ ]* )?shop( -u ?[^ ]+)?( -p ?[^ ]*)? ?< ?shop_backup\\.sql$",
+        "canonical": "mysql -u root -p shop < shop_backup.sql",
+        "nearMisses": [
+          {
+            "pattern": "^mysqldump (-u ?[^ ]+ )?(-p ?[^ ]* )?shop ?< ?shop_backup\\.sql$",
+            "feedback": "mysqldump erzeugt Backups, importiert sie aber nicht. Für die Wiederherstellung wird der mysql-Client verwendet."
+          },
+          {
+            "pattern": "^mysql (-u ?[^ ]+ )?(-p ?[^ ]* )?shop ?> ?shop_backup\\.sql$",
+            "feedback": "Der Umleitungspfeil zeigt in die falsche Richtung: > schreibt eine Datei, für den Import einer bestehenden Datei wird < benötigt."
+          }
+        ]
+      },
+      "hints": [
+        "Das Werkzeug zum Import ist der normale mysql-Client, nicht mysqldump.",
+        "Die Datei wird mit dem Umleitungsoperator < als Eingabe übergeben."
+      ],
+      "explanation": "mysql -u root -p shop < shop_backup.sql liest die SQL-Datei zeilenweise ein und führt jede Anweisung gegen die Datenbank shop aus. Wichtig: Die Zieldatenbank muss vorher existieren (CREATE DATABASE shop;), da mysqldump standardmäßig kein CREATE DATABASE für die Datenbank selbst mit exportiert, sofern nicht --databases statt eines einzelnen Datenbanknamens verwendet wurde."
+    }
+  ]
+}

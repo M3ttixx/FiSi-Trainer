@@ -1,10 +1,23 @@
+import Foundation
 import LearnCore
 
 /// Kapselt jede Bildschirmausgabe der Shell an einer Stelle.
 struct Renderer {
     func banner() {
+        let art = """
+          █████▒██▓  █████    ██████ ██▓
+        ▓██   ▒▓██▒▒██▓  ██▒▒██    ▒▓██▒
+        ▒████ ░▒██▒▒██▒  ██░░ ▓██▄  ▒██▒
+        ░▓█▒  ░░██░░██  █▀ ░  ▒   ██▒██░
+        ░▒█░   ░██░░▒███▒█▄ ▒██████▒░██░
+         ▒ ░   ░▓  ░░ ▒▒░ ▒ ▒ ▒▓▒ ▒ ░▓
+         ░      ▒ ░ ░ ▒░  ░ ░ ░▒  ░ ░▒ ░
+         ░ ░    ▒ ░   ░   ░  ░  ░  ░▒ ░
+                ░      ░         ░  ░
+        """
         print("")
-        print("  FiSi-Trainer".styled(.bold).styled(.cyan))
+        print(art.styled(.cyan))
+        print("  T R A I N E R".styled(.bold).styled(.magenta))
         print("  Server-Setups, Netzwerke, Datenbanken — und Prüfungsvorbereitung für AP1/AP2.".styled(.dim))
         print("  Tippe 'help' für die Kommandoübersicht.\n")
     }
@@ -16,8 +29,11 @@ struct Renderer {
             ("list [track]", "Lektionen auflisten, optional gefiltert (web/database/network/virtualization)"),
             ("start <id>", "Eine Lektion starten"),
             ("hint", "Nächsten Hinweis zum aktuellen Schritt anzeigen"),
-            ("skip", "Aktuellen Schritt überspringen"),
-            ("status", "Eigenen Fortschritt anzeigen"),
+            ("skip", "Aktuellen Schritt/aktuelle Frage überspringen"),
+            ("review", "Fällige Prüfungsfragen wiederholen (Spaced Repetition)"),
+            ("exam <ap1|ap2>", "Prüfung simulieren, mit Zeitbudget und Auswertung je Lernfeld"),
+            ("stats", "Trefferquote je Lernfeld anzeigen"),
+            ("status", "Lektions-Fortschritt anzeigen"),
             ("validate", "Alle Inhalte auf Fehler prüfen"),
             ("reset", "Fortschritt zurücksetzen"),
             ("quit", "Beenden"),
@@ -27,7 +43,7 @@ struct Renderer {
         for (command, description) in rows {
             print("  \(command.padding(toLength: width, withPad: " ", startingAt: 0))  \(description)")
         }
-        print("\nWährend einer laufenden Lektion gilt jede andere Eingabe als Lösungsversuch.".styled(.dim))
+        print("\nWährend einer laufenden Lektion/Frage gilt jede andere Eingabe als Lösungsversuch.".styled(.dim))
     }
 
     func tracks() {
@@ -47,8 +63,17 @@ struct Renderer {
             let mark = done ? "✔".styled(.green) : " "
             let lernfelder = lesson.lernfelder.map(\.label).joined(separator: ", ")
             print("  \(mark) \(lesson.id.styled(.cyan))  \(lesson.title)")
-            print("      \(lesson.track.rawValue) · \(lesson.difficulty.label) · \(lesson.examPart.label) · \(lernfelder)".styled(.dim))
+            print("      \(lesson.track.rawValue) · \(difficultyTag(lesson.difficulty)) · \(lesson.examPart.label) · \(lernfelder)".styled(.dim))
         }
+    }
+
+    private func difficultyTag(_ difficulty: Difficulty) -> String {
+        let color: ANSI = switch difficulty {
+        case .beginner: .green
+        case .intermediate: .yellow
+        case .advanced: .red
+        }
+        return difficulty.label.styled(color)
     }
 
     func lessonIntro(_ lesson: Lesson) {
@@ -73,14 +98,18 @@ struct Renderer {
         }
     }
 
-    func outcome(_ outcome: Outcome) {
+    /// `hintAvailable`: Lektions-Schritte haben gestaffelte Hinweise, Fragen
+    /// in Review/Exam nicht — die Fehlermeldung soll nur dort auf 'hint'
+    /// verweisen, wo das Kommando tatsächlich etwas tut.
+    func outcome(_ outcome: Outcome, hintAvailable: Bool = true) {
         switch outcome {
         case .correct:
             print("✔ Richtig.".styled(.green))
         case .closeButWrong(let feedback):
             print("~ Fast: \(feedback)".styled(.yellow))
         case .incorrect:
-            print("✘ Nicht richtig. 'hint' für einen Hinweis, 'skip' zum Überspringen.".styled(.red))
+            let suffix = hintAvailable ? " 'hint' für einen Hinweis, 'skip' zum Überspringen." : " 'skip' zum Überspringen."
+            print("✘ Nicht richtig.\(suffix)".styled(.red))
         }
     }
 
@@ -136,5 +165,70 @@ struct Renderer {
 
     func info(_ message: String) {
         print(message.styled(.dim))
+    }
+
+    // MARK: - Prüfungsfragen (Review & Exam)
+
+    func question(_ question: Question, index: Int, total: Int) {
+        print("")
+        let lernfelder = question.lernfelder.map(\.label).joined(separator: ", ")
+        print("Frage \(index + 1)/\(total)".styled(.magenta) + "  ·  \(lernfelder) · \(question.difficulty.label)".styled(.dim))
+        print(question.prompt.styled(.bold))
+        if case .multipleChoice(let options, _) = question.answer {
+            for (i, option) in options.enumerated() {
+                let letter = Character(UnicodeScalar(97 + i)!)
+                print("   \(i + 1)/\(letter))  \(option)")
+            }
+        }
+    }
+
+    func reviewIntro(count: Int) {
+        print("")
+        print("Wiederholung: \(count) Frage(n)".styled(.bold).styled(.cyan))
+    }
+
+    func reviewComplete(correct: Int, total: Int) {
+        print("")
+        print("🎉 Wiederholung abgeschlossen: \(correct)/\(total) richtig.".styled(.green).styled(.bold))
+    }
+
+    func examIntro(examPart: ExamPart, count: Int, budget: TimeInterval) {
+        print("")
+        print("Prüfungssimulation \(examPart.label)".styled(.bold).styled(.cyan))
+        print("\(count) Fragen · Zeitbudget ca. \(formatDuration(budget)) (wird gemessen, nicht hart abgebrochen)".styled(.dim))
+    }
+
+    func examResult(_ result: ExamResult) {
+        print("")
+        print("Ergebnis \(result.examPart.label)".styled(.bold).styled(.cyan))
+        let scoreColor: ANSI = result.scorePercent >= 50 ? .green : .red
+        print("  \(result.correct)/\(result.total) richtig (\(String(format: "%.0f", result.scorePercent)) %)".styled(scoreColor))
+        let timeNote = result.elapsed <= result.budget ? "im Zeitbudget" : "über dem Zeitbudget"
+        print("  Zeit: \(formatDuration(result.elapsed)) von \(formatDuration(result.budget)) — \(timeNote)".styled(.dim))
+        print("")
+        print("Nach Lernfeld:".styled(.bold))
+        for lernfeld in result.perLernfeld.keys.sorted(by: { $0.rawValue < $1.rawValue }) {
+            guard let tally = result.perLernfeld[lernfeld] else { continue }
+            print("  \(lernfeld.label.styled(.cyan))  \(tally.correct)/\(tally.total)  (\(String(format: "%.0f", tally.accuracyPercent)) %)")
+        }
+    }
+
+    func stats(_ stats: [LernfeldStat]) {
+        if stats.isEmpty {
+            print("Noch keine Fragen im Content vorhanden.".styled(.yellow))
+            return
+        }
+        print("Trefferquote je Lernfeld:".styled(.bold))
+        for stat in stats {
+            let accuracyText = stat.accuracyPercent.map { String(format: "%.0f %%", $0) } ?? "noch nicht geübt"
+            let dueText = stat.dueCount > 0 ? " · \(stat.dueCount) fällig".styled(.yellow) : ""
+            print("  \(stat.lernfeld.label.styled(.cyan))  \(accuracyText)  (\(stat.answered) beantwortet)\(dueText)")
+        }
+    }
+
+    private func formatDuration(_ seconds: TimeInterval) -> String {
+        let minutes = Int(seconds) / 60
+        let remaining = Int(seconds) % 60
+        return minutes > 0 ? "\(minutes) min \(remaining) s" : "\(remaining) s"
     }
 }

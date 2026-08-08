@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "id": "virt-docker-basics",
+  "title": "Docker-Grundlagen: Container starten, verwalten und selbst bauen",
+  "summary": "Vom installierten Docker-Dienst über den ersten Container mit Portmapping und Volume bis zum eigenen Image — der Standardweg, Anwendungen containerisiert zu betreiben.",
+  "track": "virtualization",
+  "lernfelder": [11, 12],
+  "examPart": "ap2",
+  "difficulty": "intermediate",
+  "prerequisites": [],
+  "origin": { "kind": "ownWork" },
+  "steps": [
+    {
+      "teaching": "Docker liegt unter Ubuntu im Paket docker.io in den Standard-Repositories. Das reicht für Lern- und viele Praxiszwecke; für aktuellere Versionen bindet man in der Praxis oft Dockers eigenes Repository ein — hier genügt der einfache Weg.",
+      "prompt": "Installiere Docker über das Paket docker.io.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?apt(-get)? install ((-y|--yes) )?docker\\.io((-full))?( (-y|--yes))?$",
+        "canonical": "sudo apt install docker.io",
+        "nearMisses": [
+          {
+            "pattern": "^apt(-get)? install docker\\.io.*",
+            "feedback": "Das Kommando stimmt, aber ohne Root-Rechte bricht die Installation ab. Stelle sudo voran."
+          },
+          {
+            "pattern": "^(sudo )?apt(-get)? install ((-y|--yes) )?docker((-y|--yes))?$",
+            "feedback": "Das Paket in den Ubuntu-Standard-Repositories heißt docker.io, nicht schlicht docker."
+          },
+          {
+            "pattern": "^(sudo )?snap install docker.*",
+            "feedback": "Das würde grundsätzlich auch funktionieren, aber gesucht ist die Installation über apt aus den Standard-Repositories."
+          }
+        ]
+      },
+      "hints": [
+        "Der Paketmanager ist wieder apt.",
+        "Das Paketname unterscheidet sich vom Kommandonamen: er endet auf .io."
+      ],
+      "explanation": "apt install docker.io installiert die Docker Engine samt containerd als Abhängigkeit und startet den Dienst dockerd über systemd. Damit ein normaler Benutzer ohne sudo mit Docker arbeiten kann, muss er zusätzlich der Gruppe docker hinzugefügt werden (usermod -aG docker $USER) — bis dahin sind viele Docker-Kommandos root-pflichtig."
+    },
+    {
+      "teaching": "Images werden aus Registries wie dem Docker Hub bezogen. Vor dem ersten Start eines Containers lohnt es sich, das Image gezielt herunterzuladen — so ist klar, welche Version tatsächlich verwendet wird.",
+      "prompt": "Lade das Image nginx in der Version alpine herunter, ohne einen Container zu starten.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?docker (image )?pull nginx:alpine$",
+        "canonical": "docker pull nginx:alpine",
+        "nearMisses": [
+          {
+            "pattern": "^(sudo )?docker run nginx:alpine.*",
+            "feedback": "docker run lädt das Image bei Bedarf zwar automatisch mit, startet aber sofort einen Container. Gesucht ist ausschließlich das Herunterladen."
+          },
+          {
+            "pattern": "^(sudo )?docker (image )?pull nginx$",
+            "feedback": "Ohne Tag wird automatisch :latest verwendet — hier war aber explizit die Variante alpine gefragt."
+          },
+          {
+            "pattern": "^(sudo )?docker (images|ls).*",
+            "feedback": "Das listet nur bereits vorhandene lokale Images auf, lädt aber nichts herunter."
+          }
+        ]
+      },
+      "hints": [
+        "Das Unterkommando zum reinen Herunterladen eines Images heißt pull.",
+        "Die Version wird mit einem Doppelpunkt angehängt: image:tag."
+      ],
+      "explanation": "docker pull nginx:alpine lädt genau das mit dem Tag alpine markierte Image aus dem Docker Hub herunter und legt es lokal ab. Das schlanke Alpine-basierte Image ist deutlich kleiner als das Standard-Image und in Lernumgebungen eine gute Wahl."
+    },
+    {
+      "teaching": "Ein Container ist standardmäßig vom Host-Netzwerk isoliert. Portmapping verbindet einen Port des Hosts mit einem Port im Container, damit ein Dienst von außen erreichbar wird.",
+      "prompt": "Starte im Hintergrund einen Container aus dem Image nginx:alpine mit dem Namen webserver, der Host-Port 8080 auf Container-Port 80 mappt.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?docker run (?=.*(-d|--detach))(?=.*--name webserver)(?=.*-p 8080:80)(?:-d|--detach|--name webserver|-p 8080:80|\\s)+nginx:alpine$",
+        "canonical": "docker run -d --name webserver -p 8080:80 nginx:alpine",
+        "nearMisses": [
+          {
+            "pattern": "^(sudo )?docker run --name webserver -p 8080:80 nginx:alpine$",
+            "feedback": "Fast vollständig — ohne -d (--detach) läuft der Container im Vordergrund und blockiert das Terminal. Für den Hintergrundbetrieb fehlt dieser Schalter."
+          },
+          {
+            "pattern": "^(sudo )?docker run -d --name webserver -p 80:8080 nginx:alpine$",
+            "feedback": "Die Reihenfolge bei -p ist host:container — hier ist sie vertauscht. Gesucht war Host-Port 8080 auf Container-Port 80."
+          },
+          {
+            "pattern": "^(sudo )?docker run -d -p 8080:80 nginx:alpine$",
+            "feedback": "Portmapping und Hintergrundstart stimmen, aber ohne --name webserver vergibt Docker einen zufälligen Namen."
+          }
+        ]
+      },
+      "hints": [
+        "-d startet den Container im Hintergrund (detached).",
+        "-p host:container legt das Portmapping fest, --name vergibt einen festen Namen."
+      ],
+      "explanation": "docker run -d --name webserver -p 8080:80 nginx:alpine erstellt und startet einen neuen Container aus dem Image, gibt ihm den Namen webserver, läuft im Hintergrund und leitet Anfragen an http://localhost:8080 an Port 80 im Container weiter, wo nginx standardmäßig lauscht."
+    },
+    {
+      "teaching": "Container sind vergänglich: wird ein Container gelöscht, gehen ohne weitere Vorkehrung auch alle in ihm geschriebenen Daten verloren. Ein Volume oder Bind-Mount hängt ein Host-Verzeichnis in den Container ein, sodass Daten den Container überleben.",
+      "prompt": "Starte einen weiteren Container aus nginx:alpine mit dem Namen webserver2, der das Host-Verzeichnis /srv/html nach /usr/share/nginx/html im Container mountet.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?docker run (-d )?--name webserver2 (-v|--volume) /srv/html:/usr/share/nginx/html( -d)? nginx:alpine$",
+        "canonical": "docker run -d --name webserver2 -v /srv/html:/usr/share/nginx/html nginx:alpine",
+        "nearMisses": [
+          {
+            "pattern": "^(sudo )?docker run (-d )?--name webserver2 (-v|--volume) /usr/share/nginx/html:/srv/html( -d)? nginx:alpine$",
+            "feedback": "Die Reihenfolge bei -v ist host:container — hier ist sie vertauscht. Das Host-Verzeichnis /srv/html gehört vor den Doppelpunkt."
+          },
+          {
+            "pattern": "^(sudo )?docker cp .*",
+            "feedback": "docker cp kopiert Dateien einmalig in einen laufenden Container, verknüpft aber kein Verzeichnis dauerhaft. Gesucht ist ein Mount beim Start."
+          }
+        ]
+      },
+      "hints": [
+        "Der Schalter für ein Volume/Bind-Mount ist -v (oder --volume).",
+        "Die Syntax lautet -v host-pfad:container-pfad."
+      ],
+      "explanation": "-v /srv/html:/usr/share/nginx/html verbindet das Host-Verzeichnis /srv/html mit dem Dokumentenverzeichnis von nginx im Container. Änderungen auf dem Host sind sofort im Container sichtbar und umgekehrt, und die Dateien bleiben erhalten, selbst wenn der Container gelöscht wird."
+    },
+    {
+      "teaching": "Bevor man einen Container debuggt oder stoppt, muss man wissen, ob und mit welchem Status er läuft. docker ps zeigt standardmäßig nur laufende Container an.",
+      "prompt": "Liste alle laufenden Container auf.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?docker (ps|container ls)$",
+        "canonical": "docker ps",
+        "nearMisses": [
+          {
+            "pattern": "^(sudo )?docker (ps|container ls) -a$",
+            "feedback": "-a zeigt zusätzlich auch gestoppte Container. Gefragt war zunächst nur die Liste der laufenden Container."
+          },
+          {
+            "pattern": "^(sudo )?docker (images|image ls)$",
+            "feedback": "Das listet lokale Images auf, nicht laufende Container."
+          }
+        ]
+      },
+      "hints": [
+        "Das Unterkommando heißt ps, wie das klassische Unix-Werkzeug für Prozesse.",
+        "Ohne zusätzliche Schalter werden nur laufende Container gezeigt."
+      ],
+      "explanation": "docker ps zeigt Container-ID, Image, Startbefehl, Laufzeit, Status und gemappte Ports jedes laufenden Containers. Mit dem Zusatz -a würden auch beendete und nie gestartete Container angezeigt — nützlich, um herauszufinden, warum ein Container sofort wieder beendet wurde."
+    },
+    {
+      "teaching": "Wenn ein Dienst im Container nicht wie erwartet reagiert, sind die Logausgaben oft die erste Anlaufstelle — Docker leitet die Standardausgabe des Hauptprozesses eines Containers automatisch in seine Logs um.",
+      "prompt": "Zeige die Logs des Containers webserver an und folge ihnen fortlaufend.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?docker logs (-f|--follow) webserver$",
+        "canonical": "docker logs -f webserver",
+        "nearMisses": [
+          {
+            "pattern": "^(sudo )?docker logs webserver$",
+            "feedback": "Das zeigt die bisherigen Logs an, beendet sich danach aber. Gesucht ist das fortlaufende Mitverfolgen — dafür gibt es einen eigenen Schalter."
+          },
+          {
+            "pattern": "^(sudo )?docker (attach|exec) webserver.*",
+            "feedback": "attach/exec verbinden mit dem laufenden Prozess bzw. starten einen neuen Prozess im Container — für reines Mitlesen der Logs ist docker logs das richtige Kommando."
+          }
+        ]
+      },
+      "hints": [
+        "Das Unterkommando heißt logs.",
+        "Der Schalter zum fortlaufenden Mitverfolgen ist -f oder --follow, wie bei tail."
+      ],
+      "explanation": "docker logs -f webserver zeigt zunächst die bisher gesammelten Logs und hängt sich danach wie tail -f an neue Ausgaben an. Da der Container-Hauptprozess (hier nginx) im Vordergrund läuft, landen dessen Log-Zeilen direkt im Docker-Log — ein separates Log-Datei-Handling im Container ist dafür nicht nötig."
+    },
+    {
+      "teaching": "Ein Container sauber zu stoppen bedeutet, dem Hauptprozess zunächst ein Signal zum Beenden zu senden (SIGTERM) und ihm Zeit zu geben, sich ordentlich zu beenden — statt ihn abrupt zu töten.",
+      "prompt": "Stoppe den Container webserver sauber.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?docker stop webserver$",
+        "canonical": "docker stop webserver",
+        "nearMisses": [
+          {
+            "pattern": "^(sudo )?docker kill webserver$",
+            "feedback": "docker kill sendet sofort SIGKILL und beendet den Prozess unvermittelt, ohne Chance auf sauberes Herunterfahren. Gesucht ist die sanfte Variante."
+          },
+          {
+            "pattern": "^(sudo )?docker rm webserver$",
+            "feedback": "docker rm entfernt einen bereits gestoppten Container vollständig, stoppt ihn aber nicht selbst — ein laufender Container lässt sich damit nicht direkt löschen."
+          }
+        ]
+      },
+      "hints": [
+        "Das Unterkommando heißt stop, nicht kill.",
+        "Es reicht der Containername ohne weitere Schalter."
+      ],
+      "explanation": "docker stop webserver sendet SIGTERM an den Hauptprozess im Container und wartet standardmäßig 10 Sekunden, bevor es notfalls mit SIGKILL nachhilft. So bekommt der Prozess die Chance, offene Verbindungen abzuschließen und Dateien sauber zu schließen — der Container selbst bleibt danach existent, nur gestoppt, und kann mit docker start wieder gestartet werden."
+    },
+    {
+      "teaching": "Ein eigenes Image entsteht aus einem Dockerfile: einer Textdatei mit Bauanleitung, die Schicht für Schicht beschreibt, wie das Image aufgebaut wird. Aus einer minimalen Dockerfile mit einer FROM- und einer COPY-Zeile lässt sich damit bereits ein eigenes Image bauen.",
+      "prompt": "Baue aus einem Dockerfile im aktuellen Verzeichnis ein Image mit dem Namen meine-webseite und dem Tag v1.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?docker build (-t|--tag) meine-webseite:v1 \\.$",
+        "canonical": "docker build -t meine-webseite:v1 .",
+        "nearMisses": [
+          {
+            "pattern": "^(sudo )?docker build (-t|--tag) meine-webseite:v1$",
+            "feedback": "Fast richtig — es fehlt der Build-Kontext, also der Pfad zum Verzeichnis mit dem Dockerfile. Im aktuellen Verzeichnis ist das ein einzelner Punkt."
+          },
+          {
+            "pattern": "^(sudo )?docker build \\.$",
+            "feedback": "Das baut das Image, vergibt aber keinen Namen — ohne -t/--tag bekommt man nur eine Image-ID und muss meine-webseite:v1 nachträglich zuweisen."
+          },
+          {
+            "pattern": "^(sudo )?docker run.*",
+            "feedback": "docker run startet einen Container aus einem bereits vorhandenen Image. Ein neues Image aus einem Dockerfile entsteht mit docker build."
+          }
+        ]
+      },
+      "hints": [
+        "Das Unterkommando heißt build, der Name/Tag wird mit -t (oder --tag) vergeben.",
+        "Am Ende des Kommandos steht der Build-Kontext — für das aktuelle Verzeichnis ein einzelner Punkt."
+      ],
+      "explanation": "docker build -t meine-webseite:v1 . liest das Dockerfile im aktuellen Verzeichnis (dem Build-Kontext), führt jede Anweisung als eigene, gecachte Schicht aus und benennt das fertige Image meine-webseite:v1. Der abschließende Punkt ist kein Tippfehler, sondern der Pfad zum Kontextverzeichnis — er legt fest, welche Dateien (z. B. per COPY) überhaupt für den Build verfügbar sind."
+    }
+  ]
+}
