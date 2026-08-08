@@ -1,0 +1,8 @@
+.build/
+.swiftpm/
+*.xcodeproj
+.DS_Store
+
+# Privat gehaltene Übungshefte / Altprüfungs-Auswertungen — nie ins öffentliche Repo,
+# siehe Content-Strategie im Plan (docs/CONTENT_SCHEMA.md, sobald angelegt).
+Sources/LearnCore/Content/Resources/private/

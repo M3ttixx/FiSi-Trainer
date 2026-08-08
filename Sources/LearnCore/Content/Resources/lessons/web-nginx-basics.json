@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "id": "web-nginx-basics",
+  "title": "Nginx installieren und einen Server-Block einrichten",
+  "summary": "Von der Installation über den Dienststatus bis zum eigenen vHost — der Standardweg, einen Webserver unter Debian/Ubuntu in Betrieb zu nehmen.",
+  "track": "web",
+  "lernfelder": [9, 11],
+  "examPart": "ap2",
+  "difficulty": "beginner",
+  "prerequisites": [],
+  "origin": { "kind": "ownWork" },
+  "steps": [
+    {
+      "teaching": "Unter Debian und Ubuntu werden Pakete mit apt verwaltet. Vor jeder Installation wird die Paketliste aktualisiert, sonst installiert man womöglich aus einem veralteten Index heraus.",
+      "prompt": "Aktualisiere die Paketliste des Systems.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?apt(-get)? update$",
+        "canonical": "sudo apt update",
+        "nearMisses": [
+          {
+            "pattern": "^(sudo )?apt(-get)? upgrade$",
+            "feedback": "upgrade installiert neuere Versionen bereits vorhandener Pakete. Gesucht ist der Schritt davor: die Paketliste neu einlesen."
+          },
+          {
+            "pattern": "^(yum|dnf|pacman|brew).*",
+            "feedback": "Richtiger Gedanke, falsche Distribution. Auf Debian/Ubuntu heißt der Paketmanager apt."
+          }
+        ]
+      },
+      "hints": [
+        "Der Paketmanager auf Debian/Ubuntu heißt apt.",
+        "Gesucht ist das Unterkommando, das den Paketindex neu einliest — nicht das, was Pakete aktualisiert."
+      ],
+      "explanation": "apt update lädt nur die Paketlisten der konfigurierten Quellen neu. Es installiert und aktualisiert nichts. Erst danach kennt apt die aktuell verfügbaren Versionen."
+    },
+    {
+      "teaching": "Nginx liegt in den Standard-Repositories. Für Installationen sind Root-Rechte nötig, üblicherweise über sudo.",
+      "prompt": "Installiere das Paket nginx.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?apt(-get)? install ((-y|--yes) )?nginx((-full|-light))?( (-y|--yes))?$",
+        "canonical": "sudo apt install nginx",
+        "nearMisses": [
+          {
+            "pattern": "^apt(-get)? install.*",
+            "feedback": "Das Kommando stimmt, aber ohne Root-Rechte bricht die Installation ab. Stelle sudo voran."
+          },
+          {
+            "pattern": "^(sudo )?apt(-get)? install (apache2|httpd).*",
+            "feedback": "Das installiert Apache. In dieser Lektion geht es um nginx."
+          }
+        ]
+      },
+      "hints": [
+        "Das Unterkommando von apt zum Installieren heißt install.",
+        "Paketinstallationen brauchen Root-Rechte."
+      ],
+      "explanation": "apt install nginx zieht das Paket samt Abhängigkeiten. Das Debian-Paket startet den Dienst direkt nach der Installation und aktiviert ihn für den Systemstart — anders als bei einer manuellen Quellinstallation."
+    },
+    {
+      "teaching": "Dienste werden unter systemd mit systemctl verwaltet. Vor jeder Fehlersuche steht die Frage, ob der Dienst überhaupt läuft.",
+      "prompt": "Zeige den aktuellen Status des Dienstes nginx an.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?systemctl status nginx(\\.service)?$",
+        "canonical": "systemctl status nginx",
+        "nearMisses": [
+          {
+            "pattern": "^(sudo )?service nginx status$",
+            "feedback": "Funktioniert über den Kompatibilitäts-Wrapper, ist aber die alte SysV-Schreibweise. Unter systemd lautet der direkte Weg anders."
+          },
+          {
+            "pattern": "^(sudo )?systemctl (start|restart|enable|stop) nginx.*",
+            "feedback": "Richtiges Werkzeug, falsches Unterkommando — gefragt ist nur die Statusabfrage, ohne den Dienst zu verändern."
+          }
+        ]
+      },
+      "hints": [
+        "Das zentrale Werkzeug für Dienste unter systemd ist systemctl.",
+        "Gesucht ist eine reine Abfrage, die nichts verändert."
+      ],
+      "explanation": "systemctl status zeigt Zustand, PID, Speicherverbrauch und die letzten Logzeilen. Die Zeile 'active (running)' bestätigt den Betrieb; 'enabled' im Loaded-Abschnitt bedeutet zusätzlich Start beim Booten."
+    },
+    {
+      "teaching": "Nginx trennt verfügbare von aktiven Konfigurationen: Server-Blöcke liegen in /etc/nginx/sites-available und werden per Symlink nach sites-enabled aktiviert. So bleibt eine Konfiguration erhalten, auch wenn sie gerade nicht aktiv ist.",
+      "prompt": "In welchem Verzeichnis liegen unter Debian/Ubuntu die verfügbaren, aber nicht zwingend aktiven Server-Blöcke?",
+      "expectation": {
+        "kind": "multipleChoice",
+        "options": [
+          "/etc/nginx/conf.d",
+          "/etc/nginx/sites-available",
+          "/etc/nginx/sites-enabled",
+          "/var/www/html"
+        ],
+        "correct": 1
+      },
+      "hints": [
+        "Der Verzeichnisname beschreibt genau den Unterschied zwischen 'vorhanden' und 'aktiv'.",
+        "sites-enabled enthält nur Symlinks auf das gesuchte Verzeichnis."
+      ],
+      "explanation": "sites-available hält alle vorbereiteten Server-Blöcke. Aktiviert wird durch einen Symlink nach sites-enabled, das per include in nginx.conf eingebunden ist. /var/www/html ist dagegen das Standard-Dokumentenverzeichnis, nicht die Konfiguration."
+    },
+    {
+      "teaching": "Ein Syntaxfehler in der Konfiguration legt beim Neustart den Webserver lahm. Deshalb wird jede Änderung vorher geprüft.",
+      "prompt": "Prüfe die Nginx-Konfiguration auf Syntaxfehler, ohne den Dienst neu zu starten.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?nginx -t$",
+        "canonical": "sudo nginx -t",
+        "nearMisses": [
+          {
+            "pattern": "^(sudo )?nginx -[a-su-z]$",
+            "feedback": "Richtiges Programm, falscher Schalter. Gesucht ist der Test der Konfiguration."
+          },
+          {
+            "pattern": "^(sudo )?systemctl (restart|reload) nginx.*",
+            "feedback": "Das würde die Konfiguration übernehmen, ohne sie vorher zu prüfen — genau die Reihenfolge, die im Fehlerfall den Dienst stoppt."
+          }
+        ]
+      },
+      "hints": [
+        "Das Binary nginx selbst bringt einen Schalter dafür mit.",
+        "Der Schalter steht für 'test'."
+      ],
+      "explanation": "nginx -t liest die gesamte Konfiguration ein und meldet 'syntax is ok' sowie 'test is successful'. Der Dienst läuft dabei unverändert weiter. Erst danach ist ein reload gefahrlos."
+    },
+    {
+      "teaching": "Nach geprüfter Konfiguration wird sie übernommen. Ein reload lässt bestehende Verbindungen zu Ende laufen und startet nur die Worker-Prozesse neu — ein restart trennt sie.",
+      "prompt": "Übernimm die neue Konfiguration, ohne bestehende Verbindungen zu unterbrechen.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?systemctl reload nginx(\\.service)?$",
+        "canonical": "sudo systemctl reload nginx",
+        "nearMisses": [
+          {
+            "pattern": "^(sudo )?systemctl restart nginx.*",
+            "feedback": "restart beendet den Dienst und startet ihn neu — bestehende Verbindungen brechen ab. Gesucht ist die unterbrechungsfreie Variante."
+          }
+        ]
+      },
+      "hints": [
+        "Wieder systemctl.",
+        "Das Unterkommando heißt so, wie das englische Wort für 'neu laden'."
+      ],
+      "explanation": "reload sendet dem Master-Prozess ein HUP-Signal: er liest die Konfiguration neu, startet frische Worker und lässt die alten ihre offenen Anfragen zu Ende bedienen. Im Produktivbetrieb ist das der Regelweg, restart die Ausnahme."
+    }
+  ]
+}

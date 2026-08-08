@@ -1,0 +1,217 @@
+[
+  {
+    "schemaVersion": 1,
+    "id": "q-net-subnet-hosts-26",
+    "prompt": "Wie viele nutzbare Hostadressen bietet das Netz 192.168.10.0/26?",
+    "lernfelder": [3, 9],
+    "examPart": "ap1",
+    "difficulty": "beginner",
+    "answer": { "kind": "calculation", "expected": "62" },
+    "explanation": "Bei /26 bleiben 32 - 26 = 6 Hostbits, also 2^6 = 64 Adressen. Netz- und Broadcastadresse sind nicht an Hosts vergebbar: 64 - 2 = 62.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-net-subnetmask-27",
+    "prompt": "Wie lautet die Subnetzmaske zum Präfix /27 in dezimaler Schreibweise?",
+    "lernfelder": [3, 9],
+    "examPart": "ap1",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "shortAnswer",
+      "accepted": ["255.255.255.224"]
+    },
+    "explanation": "/27 setzt im vierten Oktett die obersten drei Bits: 128 + 64 + 32 = 224. Die Blockgröße beträgt damit 32 Adressen pro Subnetz.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-net-broadcast-22",
+    "prompt": "Welche Broadcast-Adresse hat das Netz, in dem die Adresse 172.16.5.10/22 liegt?",
+    "lernfelder": [3, 9],
+    "examPart": "ap1",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "shortAnswer",
+      "accepted": ["172.16.7.255"]
+    },
+    "explanation": "Bei /22 liegen 2 Hostbits im dritten Oktett, die Blockgröße dort beträgt 4. Die Netze beginnen bei 172.16.0.0, 172.16.4.0, 172.16.8.0 — die .5 fällt in 172.16.4.0/22. Dessen letzte Adresse und damit Broadcast ist 172.16.7.255.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-net-private-ranges",
+    "prompt": "Welcher der folgenden Adressbereiche ist KEIN privater Bereich nach RFC 1918?",
+    "lernfelder": [3],
+    "examPart": "ap1",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "10.0.0.0/8",
+        "172.16.0.0/12",
+        "192.168.0.0/16",
+        "169.254.0.0/16"
+      ],
+      "correct": 3
+    },
+    "explanation": "169.254.0.0/16 ist der APIPA-Bereich: Adressen daraus vergibt ein Host selbst, wenn kein DHCP-Server antwortet. Ein solcher Client hat also gerade keine gültige Konfiguration erhalten — ein häufiger Befund bei der Fehlersuche.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-net-osi-switch",
+    "prompt": "Auf welcher OSI-Schicht arbeitet ein klassischer Switch?",
+    "lernfelder": [3, 9],
+    "examPart": "ap1",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": ["Schicht 1 (Bitübertragung)", "Schicht 2 (Sicherung)", "Schicht 3 (Vermittlung)", "Schicht 4 (Transport)"],
+      "correct": 1
+    },
+    "explanation": "Ein Switch trifft seine Weiterleitungsentscheidung anhand von MAC-Adressen, die auf Schicht 2 liegen. Ein Hub arbeitet auf Schicht 1, ein Router anhand von IP-Adressen auf Schicht 3. Layer-3-Switches vereinen beides.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-net-dhcp-dora",
+    "prompt": "In welcher Reihenfolge laufen die vier Nachrichten des DHCP-Vorgangs ab?",
+    "lernfelder": [3, 9],
+    "examPart": "ap1",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Discover, Offer, Request, Acknowledge",
+        "Request, Offer, Discover, Acknowledge",
+        "Offer, Discover, Acknowledge, Request",
+        "Discover, Request, Offer, Acknowledge"
+      ],
+      "correct": 0
+    },
+    "explanation": "DORA: Der Client sucht per Broadcast (Discover), ein Server bietet eine Adresse an (Offer), der Client fordert genau dieses Angebot an (Request), der Server bestätigt (Acknowledge). Der Request geht ebenfalls als Broadcast raus, damit andere Server ihr Angebot zurückziehen.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-net-dns-mx",
+    "prompt": "Welcher DNS-Ressourceneintrag legt fest, welcher Server für eine Domain E-Mails annimmt?",
+    "lernfelder": [9],
+    "examPart": "ap1",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "shortAnswer",
+      "accepted": ["MX", "MX-Record", "MX Record", "Mail Exchange"]
+    },
+    "explanation": "Der MX-Record verweist mit einer Priorität auf den zuständigen Mailserver — kleinere Werte gelten zuerst. Er zeigt auf einen Namen, nie direkt auf eine IP-Adresse; die Auflösung übernimmt anschließend ein A- oder AAAA-Record.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-net-port-https",
+    "prompt": "Über welchen Port läuft HTTPS standardmäßig?",
+    "lernfelder": [3, 9],
+    "examPart": "ap1",
+    "difficulty": "beginner",
+    "answer": { "kind": "calculation", "expected": "443" },
+    "explanation": "HTTPS nutzt standardmäßig TCP-Port 443, HTTP den Port 80. Beide liegen im Bereich der Well-Known-Ports (0–1023), deren Belegung die IANA vergibt.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-sec-schutzziele",
+    "prompt": "Welche drei Grundwerte bilden die klassischen Schutzziele der Informationssicherheit?",
+    "lernfelder": [4, 11],
+    "examPart": "both",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Vertraulichkeit, Integrität, Verfügbarkeit",
+        "Verschlüsselung, Sicherung, Protokollierung",
+        "Authentifizierung, Autorisierung, Abrechnung",
+        "Vertraulichkeit, Wirtschaftlichkeit, Verfügbarkeit"
+      ],
+      "correct": 0
+    },
+    "explanation": "Vertraulichkeit (nur Berechtigte sehen Daten), Integrität (Daten sind unverändert) und Verfügbarkeit (Daten sind nutzbar, wenn sie gebraucht werden). Authentifizierung, Autorisierung und Abrechnung sind das AAA-Modell — Mittel, nicht Schutzziele.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-sec-rto-rpo",
+    "prompt": "Was beschreibt die Recovery Point Objective (RPO)?",
+    "lernfelder": [4, 11],
+    "examPart": "both",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Die Zeit, bis ein System nach einem Ausfall wieder läuft",
+        "Den maximal hinnehmbaren Datenverlust, gemessen als Zeitspanne",
+        "Die durchschnittliche Zeit zwischen zwei Ausfällen",
+        "Die vertraglich zugesicherte Verfügbarkeit in Prozent"
+      ],
+      "correct": 1
+    },
+    "explanation": "Die RPO benennt, wie viel Arbeit im Ernstfall verloren gehen darf, und bestimmt damit den Sicherungsabstand: eine RPO von vier Stunden verlangt mindestens alle vier Stunden ein Backup. Die Wiederanlaufzeit ist dagegen die RTO — beide werden regelmäßig verwechselt.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-sec-aes-symmetrisch",
+    "prompt": "Handelt es sich bei AES um ein symmetrisches oder ein asymmetrisches Verschlüsselungsverfahren?",
+    "lernfelder": [4, 11],
+    "examPart": "both",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "shortAnswer",
+      "accepted": ["symmetrisch", "symmetrisches Verfahren", "symmetrische Verschlüsselung"]
+    },
+    "explanation": "AES verwendet denselben Schlüssel zum Ver- und Entschlüsseln und ist damit symmetrisch — schnell, aber der Schlüssel muss sicher ausgetauscht werden. RSA und ECC sind asymmetrisch. In der Praxis kombiniert man beides: asymmetrisch wird ein symmetrischer Sitzungsschlüssel ausgehandelt (Hybridverfahren, z. B. bei TLS).",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-hw-raid5-kapazitaet",
+    "prompt": "Ein RAID 5 besteht aus 5 Festplatten mit je 4 TB. Wie groß ist die nutzbare Kapazität in TB?",
+    "lernfelder": [2, 11],
+    "examPart": "ap1",
+    "difficulty": "intermediate",
+    "answer": { "kind": "calculation", "expected": "16", "unit": "TB" },
+    "explanation": "RAID 5 verteilt Paritätsinformationen über alle Platten, was in Summe die Kapazität genau einer Platte kostet: (5 - 1) × 4 TB = 16 TB. Der Verbund verkraftet den Ausfall einer Platte.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-hw-raid10-kapazitaet",
+    "prompt": "Ein RAID 10 besteht aus 6 Festplatten mit je 2 TB. Wie groß ist die nutzbare Kapazität in TB?",
+    "lernfelder": [2, 11],
+    "examPart": "ap1",
+    "difficulty": "intermediate",
+    "answer": { "kind": "calculation", "expected": "6", "unit": "TB" },
+    "explanation": "RAID 10 spiegelt paarweise und verteilt die Spiegel per Striping: die Hälfte der Bruttokapazität bleibt nutzbar, also 6 × 2 TB / 2 = 6 TB. Teurer als RAID 5, dafür ohne Paritätsberechnung und mit besserem Schreibverhalten.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-hw-raid1-zweck",
+    "prompt": "Welchen Zweck erfüllt ein RAID-Verbund in erster Linie?",
+    "lernfelder": [2, 11],
+    "examPart": "ap1",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Er ersetzt die Datensicherung",
+        "Er erhöht die Verfügbarkeit beim Ausfall einzelner Datenträger",
+        "Er schützt Daten vor unbefugtem Zugriff",
+        "Er verringert den Speicherbedarf durch Komprimierung"
+      ],
+      "correct": 1
+    },
+    "explanation": "RAID sichert gegen den Ausfall von Hardware ab und hält den Betrieb aufrecht. Es ist ausdrücklich kein Backup: versehentliches Löschen, Verschlüsselungstrojaner oder fehlerhafte Anwendungen schreibt der Verbund zuverlässig auf alle Platten mit.",
+    "origin": { "kind": "ownWork" }
+  }
+]

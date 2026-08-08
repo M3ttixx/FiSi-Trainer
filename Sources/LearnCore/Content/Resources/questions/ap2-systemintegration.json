@@ -1,0 +1,260 @@
+[
+  {
+    "schemaVersion": 1,
+    "id": "q-db-primaerschluessel",
+    "prompt": "Welche Eigenschaft muss ein Primärschlüssel in einer relationalen Datenbank erfüllen?",
+    "lernfelder": [5, 8],
+    "examPart": "ap2",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Er muss eindeutig sein und darf keinen NULL-Wert enthalten",
+        "Er muss aus genau einer Spalte bestehen",
+        "Er muss immer vom Typ Integer sein",
+        "Er darf sich beliebig oft wiederholen, solange er indiziert ist"
+      ],
+      "correct": 0
+    },
+    "explanation": "Ein Primärschlüssel identifiziert jeden Datensatz eindeutig, deshalb sind Dubletten und NULL ausgeschlossen. Er darf durchaus mehrere Spalten umfassen (zusammengesetzter Schlüssel) und muss kein Integer sein — der Datentyp ist eine Frage der Zweckmäßigkeit.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-db-dritte-normalform",
+    "prompt": "Eine Tabelle liegt in der 2. Normalform vor. Was fordert zusätzlich die 3. Normalform?",
+    "lernfelder": [5, 8],
+    "examPart": "ap2",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Alle Attribute müssen atomar sein",
+        "Es darf keine transitiven Abhängigkeiten von Nichtschlüsselattributen geben",
+        "Jede Tabelle benötigt einen Fremdschlüssel",
+        "Alle Attribute müssen voll vom Gesamtschlüssel abhängen"
+      ],
+      "correct": 1
+    },
+    "explanation": "Die 3. NF verbietet, dass ein Nichtschlüsselattribut von einem anderen Nichtschlüsselattribut abhängt. Klassisches Beispiel: PLZ und Ort in der Kundentabelle — der Ort hängt an der PLZ, nicht an der Kundennummer, und gehört daher in eine eigene Tabelle. Atomarität fordert die 1. NF, die volle Abhängigkeit vom Gesamtschlüssel die 2. NF.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-db-join-inner",
+    "prompt": "Welche Datensätze liefert ein INNER JOIN zwischen zwei Tabellen?",
+    "lernfelder": [5, 8],
+    "examPart": "ap2",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Alle Datensätze beider Tabellen",
+        "Nur Datensätze, für die in beiden Tabellen ein passender Partner existiert",
+        "Alle Datensätze der linken Tabelle, ergänzt um passende der rechten",
+        "Alle Kombinationen aus beiden Tabellen"
+      ],
+      "correct": 1
+    },
+    "explanation": "Der INNER JOIN liefert nur die Schnittmenge. Datensätze ohne Gegenstück fallen heraus — ein LEFT JOIN behielte sie und füllte die fehlenden Spalten mit NULL. Alle Kombinationen ergäbe der CROSS JOIN.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-virt-container-vs-vm",
+    "prompt": "Worin unterscheidet sich ein Container grundlegend von einer virtuellen Maschine?",
+    "lernfelder": [11, 12],
+    "examPart": "ap2",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Ein Container bringt ein eigenes Gastbetriebssystem mit",
+        "Ein Container teilt sich den Kernel des Hosts und kapselt nur den Userspace",
+        "Ein Container läuft ausschließlich auf physischer Hardware",
+        "Ein Container kann keine Netzwerkdienste bereitstellen"
+      ],
+      "correct": 1
+    },
+    "explanation": "Eine VM virtualisiert komplette Hardware und fährt darin ein eigenes Betriebssystem samt Kernel hoch. Ein Container nutzt den Kernel des Hosts und isoliert lediglich Prozesse, Dateisystem und Netzwerk (Namespaces und cgroups). Daraus folgen Start in Sekundenbruchteilen und geringer Overhead — aber auch eine schwächere Isolation und die Bindung an den Kernel des Hosts.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-virt-docker-persistenz",
+    "prompt": "Wie werden Daten in Docker so abgelegt, dass sie das Löschen eines Containers überstehen?",
+    "lernfelder": [11, 12],
+    "examPart": "ap2",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "shortAnswer",
+      "accepted": ["Volume", "Volumes", "Docker Volume", "named volume", "Bind Mount"]
+    },
+    "explanation": "Das Schreibschicht eines Containers verschwindet mit dem Container. Volumes liegen außerhalb davon und werden vom Docker-Daemon verwaltet; Bind Mounts binden ein Verzeichnis des Hosts ein. Für Datenbankcontainer ist das keine Kür, sondern Voraussetzung.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-web-reverse-proxy",
+    "prompt": "Welche Aufgabe erfüllt ein Reverse Proxy?",
+    "lernfelder": [9, 12],
+    "examPart": "ap2",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Er leitet Anfragen interner Clients ins Internet weiter",
+        "Er nimmt Anfragen aus dem Internet entgegen und verteilt sie an dahinterliegende Server",
+        "Er ersetzt die Firewall am Netzübergang",
+        "Er speichert ausschließlich DNS-Antworten zwischen"
+      ],
+      "correct": 1
+    },
+    "explanation": "Der Reverse Proxy steht vor den Servern und nimmt Anfragen stellvertretend an — nützlich für TLS-Terminierung, Lastverteilung und Caching, und er verbirgt die interne Struktur. Ein Forward Proxy arbeitet in die andere Richtung: er vermittelt Anfragen interner Clients nach außen.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-web-tls-zertifikat-zweck",
+    "prompt": "Was bestätigt ein von einer Zertifizierungsstelle signiertes TLS-Zertifikat?",
+    "lernfelder": [4, 9],
+    "examPart": "ap2",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Dass der Betreiber der Website vertrauenswürdig handelt",
+        "Dass der öffentliche Schlüssel tatsächlich zum angegebenen Domainnamen gehört",
+        "Dass die übertragenen Daten fehlerfrei ankommen",
+        "Dass die Website frei von Schadsoftware ist"
+      ],
+      "correct": 1
+    },
+    "explanation": "Die CA bestätigt die Bindung zwischen Domainname und öffentlichem Schlüssel — mehr nicht. Über die Absichten des Betreibers oder die Sicherheit der Inhalte sagt ein Zertifikat nichts aus. Genau darauf beruhen Phishing-Seiten mit gültigem Zertifikat.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-net-vlan-zweck",
+    "prompt": "Wozu dienen VLANs in einem Unternehmensnetz?",
+    "lernfelder": [9, 11],
+    "examPart": "ap2",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Sie erhöhen die Übertragungsrate einzelner Ports",
+        "Sie trennen ein physisches Netz logisch in mehrere Broadcast-Domänen",
+        "Sie verschlüsseln den Datenverkehr zwischen Switches",
+        "Sie ersetzen die Vergabe von IP-Adressen per DHCP"
+      ],
+      "correct": 1
+    },
+    "explanation": "Ein VLAN unterteilt eine Switch-Infrastruktur logisch, ohne zusätzliche Verkabelung: jedes VLAN ist eine eigene Broadcast-Domäne. Das begrenzt Broadcast-Last und trennt Bereiche wie Gäste, Verwaltung und Produktion. Verkehr zwischen VLANs muss geroutet werden — verschlüsselt wird dabei nichts.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-net-nat-zweck",
+    "prompt": "Welche Funktion erfüllt NAT an einem Internetrouter?",
+    "lernfelder": [3, 9],
+    "examPart": "both",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Es übersetzt private IP-Adressen in eine öffentliche und zurück",
+        "Es weist Clients im LAN automatisch IP-Adressen zu",
+        "Es löst Domainnamen in IP-Adressen auf",
+        "Es priorisiert Sprachdaten gegenüber Downloads"
+      ],
+      "correct": 0
+    },
+    "explanation": "NAT schreibt Adressen in den Paketköpfen um, sodass viele private Adressen eine öffentliche mitbenutzen können. Die Zuordnung der Antworten läuft über Portnummern (PAT). Adressvergabe ist Aufgabe von DHCP, Namensauflösung die von DNS, Priorisierung die von QoS.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-sec-backup-321",
+    "prompt": "Was besagt die 3-2-1-Regel der Datensicherung?",
+    "lernfelder": [4, 11],
+    "examPart": "both",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Drei Sicherungen täglich, zwei wöchentlich, eine monatlich",
+        "Drei Kopien der Daten auf zwei verschiedenen Medien, davon eine außer Haus",
+        "Drei Verantwortliche, zwei Prüfungen, ein Wiederherstellungstest",
+        "Drei Generationen: Vollsicherung, differenziell, inkrementell"
+      ],
+      "correct": 1
+    },
+    "explanation": "Drei Kopien insgesamt, auf mindestens zwei unterschiedlichen Medientypen, davon mindestens eine räumlich getrennt. Die externe Kopie deckt genau die Fälle ab, gegen die Redundanz im selben Raum nicht hilft: Brand, Diebstahl, Verschlüsselungstrojaner. Eine Sicherung, die nie zurückgespielt wurde, gilt als ungeprüft.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-sec-dsgvo-meldefrist",
+    "prompt": "Innerhalb welcher Frist muss eine meldepflichtige Verletzung des Schutzes personenbezogener Daten nach DSGVO der Aufsichtsbehörde gemeldet werden?",
+    "lernfelder": [4, 10],
+    "examPart": "both",
+    "difficulty": "intermediate",
+    "answer": {
+      "kind": "calculation", "expected": "72", "unit": "Stunden"
+    },
+    "explanation": "Art. 33 DSGVO verlangt die Meldung unverzüglich, möglichst binnen 72 Stunden nach Bekanntwerden. Verspätete Meldungen sind zu begründen. Bei hohem Risiko für die Betroffenen müssen zusätzlich diese selbst benachrichtigt werden (Art. 34).",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-it-sla-verfuegbarkeit",
+    "prompt": "Ein SLA sichert 99,9 % Verfügbarkeit im Jahr zu. Wie viele Stunden Ausfall sind damit rund erlaubt (auf ganze Stunden gerundet)?",
+    "lernfelder": [1, 10],
+    "examPart": "both",
+    "difficulty": "intermediate",
+    "answer": { "kind": "calculation", "expected": "9", "unit": "Stunden" },
+    "explanation": "8760 Stunden pro Jahr × 0,1 % = 8,76 Stunden, gerundet rund 9. Jede weitere Neun kostet ungefähr den Faktor zehn: 99,99 % lässt nur noch etwa 53 Minuten im Jahr zu — weshalb die Zusage direkt auf Architektur und Kosten durchschlägt.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-it-tco",
+    "prompt": "Was umfassen die Total Cost of Ownership (TCO) einer IT-Beschaffung?",
+    "lernfelder": [1, 10],
+    "examPart": "both",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Ausschließlich den Anschaffungspreis",
+        "Anschaffung und Lieferkosten",
+        "Alle Kosten über den gesamten Lebenszyklus, einschließlich Betrieb und Entsorgung",
+        "Nur die laufenden Betriebskosten pro Jahr"
+      ],
+      "correct": 2
+    },
+    "explanation": "Die TCO rechnet neben dem Kaufpreis auch Installation, Lizenzen, Strom, Wartung, Schulung, Ausfallkosten und Entsorgung ein. Deshalb kann das günstigere Angebot über fünf Jahre das teurere sein — genau darauf zielen Prüfungsaufgaben zum Angebotsvergleich.",
+    "origin": { "kind": "ownWork" }
+  },
+  {
+    "schemaVersion": 1,
+    "id": "q-sys-monitoring-zweck",
+    "prompt": "Welchen Zweck verfolgt ein Monitoring-System wie Nagios, Icinga oder Zabbix in erster Linie?",
+    "lernfelder": [11, 12],
+    "examPart": "ap2",
+    "difficulty": "beginner",
+    "answer": {
+      "kind": "multipleChoice",
+      "options": [
+        "Es sichert Daten regelmäßig auf externe Medien",
+        "Es überwacht Systemzustände und meldet Abweichungen, bevor Nutzer sie bemerken",
+        "Es verteilt Software automatisch auf Clients",
+        "Es verwaltet Benutzerkonten zentral"
+      ],
+      "correct": 1
+    },
+    "explanation": "Monitoring erfasst laufend Messwerte wie Erreichbarkeit, Auslastung und Speicherplatz und schlägt bei Schwellwertverletzungen Alarm. Der Gewinn liegt im Vorlauf: Eine volllaufende Partition wird bei 80 % gemeldet und nicht erst, wenn der Dienst steht.",
+    "origin": { "kind": "ownWork" }
+  }
+]

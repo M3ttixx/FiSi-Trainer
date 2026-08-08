@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "id": "net-ssh-hardening",
+  "title": "SSH-Zugang härten",
+  "summary": "Schlüsselbasierte Anmeldung einrichten, Passwort- und Root-Login abschalten, Änderungen sicher übernehmen — die Standardhärtung jedes erreichbaren Servers.",
+  "track": "network",
+  "lernfelder": [4, 9, 11],
+  "examPart": "both",
+  "difficulty": "intermediate",
+  "prerequisites": [],
+  "origin": { "kind": "ownWork" },
+  "steps": [
+    {
+      "teaching": "Schlüsselbasierte Anmeldung ersetzt das Passwort durch ein Schlüsselpaar. Der private Schlüssel bleibt auf dem Client, der öffentliche wandert auf den Server. Ed25519 ist das heutige Standardverfahren: kurze Schlüssel, hohe Sicherheit.",
+      "prompt": "Erzeuge auf dem Client ein SSH-Schlüsselpaar vom Typ ed25519.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^ssh-keygen( .*)? -t ed25519( .*)?$|^ssh-keygen -t ed25519$",
+        "canonical": "ssh-keygen -t ed25519",
+        "nearMisses": [
+          {
+            "pattern": "^ssh-keygen -t (rsa|dsa|ecdsa).*",
+            "feedback": "Richtiges Werkzeug, aber ein anderes Verfahren. Gefragt war ed25519 — DSA gilt zudem als unsicher und wird nicht mehr unterstützt."
+          },
+          {
+            "pattern": "^ssh-keygen$",
+            "feedback": "Fast — ohne Typangabe nimmt ssh-keygen den Standard. Gib das Verfahren explizit mit an."
+          }
+        ]
+      },
+      "hints": [
+        "Das Werkzeug heißt ssh-keygen.",
+        "Der Schalter für den Schlüsseltyp ist -t."
+      ],
+      "explanation": "ssh-keygen -t ed25519 legt ~/.ssh/id_ed25519 (privat) und ~/.ssh/id_ed25519.pub (öffentlich) an. Nur die .pub-Datei gehört auf den Server; der private Schlüssel verlässt den Client nie und sollte mit einer Passphrase geschützt sein."
+    },
+    {
+      "teaching": "Der öffentliche Schlüssel muss in ~/.ssh/authorized_keys des Zielbenutzers landen. Manuelles Kopieren ist fehleranfällig — bei falschen Rechten verweigert der SSH-Server die Schlüsselanmeldung stillschweigend.",
+      "prompt": "Übertrage den öffentlichen Schlüssel mit dem dafür vorgesehenen Werkzeug zum Benutzer azubi auf dem Host server.local.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^ssh-copy-id( -i [^ ]+)? azubi@server\\.local$",
+        "canonical": "ssh-copy-id azubi@server.local",
+        "nearMisses": [
+          {
+            "pattern": "^(scp|rsync) .*",
+            "feedback": "Kopieren ginge grundsätzlich, setzt aber Rechte und Verzeichnis nicht korrekt. Es gibt ein Werkzeug, das genau diese Aufgabe übernimmt."
+          },
+          {
+            "pattern": "^ssh-copy-id.*root@.*",
+            "feedback": "Der Schlüssel soll zum Benutzer azubi, nicht zu root — Root-Login wird gleich ohnehin abgeschaltet."
+          }
+        ]
+      },
+      "hints": [
+        "Das Werkzeug gehört zum OpenSSH-Paket und hat 'copy' im Namen.",
+        "Ziel wird wie bei ssh als benutzer@host angegeben."
+      ],
+      "explanation": "ssh-copy-id hängt den öffentlichen Schlüssel an ~/.ssh/authorized_keys an und setzt dabei 700 auf ~/.ssh und 600 auf die Datei. Genau daran scheitern manuelle Kopien: sshd ignoriert zu großzügig gesetzte Rechte kommentarlos."
+    },
+    {
+      "teaching": "Die Serverkonfiguration von OpenSSH liegt in einer eigenen Datei. Sie darf nicht mit der Client-Konfiguration verwechselt werden — ein häufiger Fehler, weil sich die Namen nur um einen Buchstaben unterscheiden.",
+      "prompt": "Welche Datei konfiguriert den SSH-Server-Dienst?",
+      "expectation": {
+        "kind": "multipleChoice",
+        "options": [
+          "/etc/ssh/ssh_config",
+          "/etc/ssh/sshd_config",
+          "~/.ssh/config",
+          "/etc/sshd.conf"
+        ],
+        "correct": 1
+      },
+      "hints": [
+        "Das 'd' im Namen steht für Daemon, also den Dienst.",
+        "Die Datei liegt systemweit unter /etc/ssh/."
+      ],
+      "explanation": "sshd_config konfiguriert den Dienst (den Daemon), ssh_config dagegen den Client. ~/.ssh/config ist die persönliche Client-Konfiguration eines Benutzers. Wer Härtungsoptionen versehentlich in ssh_config einträgt, ändert am Server nichts."
+    },
+    {
+      "teaching": "Solange Passwortanmeldung erlaubt ist, kann jeder erreichbare Server durchprobiert werden. Nach eingerichteter Schlüsselanmeldung wird sie deshalb abgeschaltet.",
+      "prompt": "Mit welcher Direktive in sshd_config wird die Passwortanmeldung deaktiviert? Gib die vollständige Konfigurationszeile an.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^passwordauthentication no$",
+        "canonical": "PasswordAuthentication no",
+        "nearMisses": [
+          {
+            "pattern": "^passwordauthentication (yes|true|1)$",
+            "feedback": "Richtige Direktive, falscher Wert — so bleibt die Passwortanmeldung genau erlaubt."
+          },
+          {
+            "pattern": "^(permitrootlogin|pubkeyauthentication|challengeresponseauthentication).*",
+            "feedback": "Auch eine Härtungsoption, aber nicht die gesuchte. Gefragt ist die Direktive für die Anmeldung per Passwort."
+          }
+        ]
+      },
+      "hints": [
+        "Die Direktive besteht aus den englischen Wörtern für 'Passwort' und 'Authentifizierung'.",
+        "Werte in sshd_config sind schlicht yes oder no."
+      ],
+      "explanation": "PasswordAuthentication no schaltet die Passwortanmeldung ab; nur noch hinterlegte Schlüssel kommen durch. Entscheidend ist die Reihenfolge: erst Schlüsselanmeldung testen, dann abschalten — sonst sperrt man sich selbst aus."
+    },
+    {
+      "teaching": "Der Benutzer root hat unbeschränkte Rechte und existiert auf jedem System — ein bekanntes Ziel. Administrative Arbeit läuft über einen normalen Benutzer mit sudo.",
+      "prompt": "Mit welcher Konfigurationszeile wird die direkte Anmeldung als root vollständig unterbunden?",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^permitrootlogin no$",
+        "canonical": "PermitRootLogin no",
+        "nearMisses": [
+          {
+            "pattern": "^permitrootlogin (prohibit-password|without-password)$",
+            "feedback": "Nah dran: das erlaubt root weiterhin per Schlüssel. Gefragt war die vollständige Sperre."
+          },
+          {
+            "pattern": "^permitrootlogin yes$",
+            "feedback": "Richtige Direktive, aber dieser Wert erlaubt den Root-Login gerade."
+          }
+        ]
+      },
+      "hints": [
+        "Die Direktive beginnt mit 'Permit'.",
+        "Gefragt ist die vollständige Sperre, nicht die Variante 'nur per Schlüssel'."
+      ],
+      "explanation": "PermitRootLogin no verbietet jede direkte Anmeldung als root. Der Wert prohibit-password erlaubt sie dagegen weiterhin per Schlüssel. Zusammen mit sudo bleibt außerdem nachvollziehbar, welcher Mensch eine administrative Aktion ausgelöst hat."
+    },
+    {
+      "teaching": "Ein Tippfehler in sshd_config kann den Dienst beim Neustart scheitern lassen — bei einem entfernten Server ohne Konsolenzugang ein ernstes Problem. OpenSSH bringt deshalb einen Konfigurationstest mit.",
+      "prompt": "Prüfe die sshd-Konfiguration auf Syntaxfehler, ohne den Dienst neu zu starten.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?sshd -t$",
+        "canonical": "sudo sshd -t",
+        "nearMisses": [
+          {
+            "pattern": "^(sudo )?ssh -t.*",
+            "feedback": "Das ist der Client — und -t erzwingt dort ein Pseudo-Terminal. Gesucht ist der Dienst."
+          },
+          {
+            "pattern": "^(sudo )?systemctl (restart|reload) (sshd?|ssh).*",
+            "feedback": "Genau die riskante Reihenfolge: erst prüfen, dann übernehmen. Sonst läuft der Dienst im Fehlerfall nicht mehr an."
+          }
+        ]
+      },
+      "hints": [
+        "Das Programm ist der Daemon selbst, nicht der Client.",
+        "Der Schalter ist derselbe wie beim Konfigurationstest von nginx."
+      ],
+      "explanation": "sshd -t liest die Konfiguration und meldet Syntaxfehler, ohne den laufenden Dienst anzufassen. Bewährte Praxis bei entfernten Servern: die bestehende SSH-Sitzung offen lassen und die Anmeldung in einer zweiten Sitzung testen, bevor die erste geschlossen wird."
+    },
+    {
+      "teaching": "Ein Serverdienst sollte nur dort erreichbar sein, wo er gebraucht wird. Ergänzend zur SSH-Härtung filtert eine Host-Firewall die eingehenden Verbindungen.",
+      "prompt": "Erlaube mit ufw eingehende SSH-Verbindungen.",
+      "expectation": {
+        "kind": "command",
+        "pattern": "^(sudo )?ufw allow (ssh|22(/tcp)?)$",
+        "canonical": "sudo ufw allow ssh",
+        "nearMisses": [
+          {
+            "pattern": "^(sudo )?ufw deny (ssh|22).*",
+            "feedback": "deny sperrt den Zugang — damit wäre der Server nicht mehr administrierbar. Gesucht ist die Freigabe."
+          },
+          {
+            "pattern": "^(sudo )?ufw enable$",
+            "feedback": "Vorsicht: ufw ohne vorherige SSH-Regel zu aktivieren, sperrt eine laufende Sitzung aus. Erst die Regel anlegen."
+          }
+        ]
+      },
+      "hints": [
+        "Das Werkzeug ist ufw, die vereinfachte Firewall-Verwaltung unter Ubuntu.",
+        "Dienste dürfen über ihren Namen aus /etc/services angesprochen werden."
+      ],
+      "explanation": "ufw allow ssh legt eine Regel für Port 22/tcp an — der Dienstname wird über /etc/services aufgelöst. Die Reihenfolge ist entscheidend: erst die SSH-Regel, dann ufw enable, sonst trennt die Standardrichtlinie 'deny incoming' die eigene Sitzung."
+    }
+  ]
+}
